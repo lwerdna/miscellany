@@ -7,18 +7,31 @@ import sys
 # TOKENIZING STUFF
 ###############################################################################
 class TID:
-	LAMBDA,LCID,DOT,SPACE = range(4)
+	LAMBDA,LCID,DOT,LPAREN,RPAREN = range(5)
 
 class Token:
 	def __init__(self,ident,val=None):
 		self.ident, self.val = ident, val
 
 	def __str__(self):
-		if self.ident == TID.LAMBDA: return "LAMBDA"
-		if self.ident == TID.DOT: return "DOT"
-		if self.ident == TID.SPACE: return "SPACE"
-		if self.ident == TID.LCID: return "LCID\"%s\"" % self.val
-		raise("unknown token id: %d" % self.ident)
+		lookup = {TID.LAMBDA:'LAMBDA', TID.LCID:'LCID', TID.DOT:'DOT', \
+			TID.LPAREN:'LPAREN', TID.RPAREN:'RPAREN'}
+
+		if self.ident == TID.LCID:
+			return 'LCID"%s"' % self.val
+		elif self.ident in lookup:
+			return lookup[self.ident]
+		else:
+			raise("unknown token id: %d" % self.ident)
+
+	def __eq__(self, lhs):
+		# can compare directly to ints
+		if type(lhs) == type(self.ident):
+			return lhs == self.ident
+
+		# or to other tokens
+		return self.ident == lhs.ident and \
+			self.val == lhs.val
 
 class TokenManager:
 	def __init__(self, tokenList):
@@ -33,12 +46,19 @@ class TokenManager:
 			return None
 		return self.tokenList[self.i + nAhead]
 	
-	def consume(self):
-		if (self.i) >= len(self.tokenList):
-			return None
-		return self.tokenList[self.i]
+	def consume(self, expected=None):
+		if self.isEnd():
+			raise("token list is empty")
 
-	def isDone(self):
+		tok = self.tokenList[self.i]
+		self.i += 1
+
+		if expected and tok != expected:
+			raise("expected token %s but got instead %s" % (expected, tok))
+		
+		return tok	
+
+	def isEnd(self):
 		return self.peek() == None
 
 	def __str__(self):
@@ -59,7 +79,6 @@ def tokenize(line):
 			tokens.append(Token(TID.LAMBDA))
 			i += 1
 		elif c.isspace():
-			tokens.append(Token(TID.SPACE))
 			while i<len(chars) and chars[i].isspace():
 				i += 1
 		elif c == '.':
@@ -71,6 +90,12 @@ def tokenize(line):
 				value += chars[i]
 				i += 1
 			tokens.append(Token(TID.LCID, value))
+		elif c == '(':
+			tokens.append(Token(TID.LPAREN))
+			i += 1
+		elif c == ')':
+			tokens.append(Token(TID.RPAREN))
+			i += 1
 		else:
 			raise("tokenizing on \"%s...\"" % chars[i:i+8])
 
@@ -98,14 +123,52 @@ class Application(Term):
 		self.termA = termA
 		self.termB = termB
 
-def parse(tokens):
-	pass
+#------------------------------------------------------------------------------
+
+def parse_prec0(tokenMgr):
+	if tokenMgr.peek() == TID.LAMBDA:
+		tokenMgr.consume(TID.LAMBDA)
+		var = Variable( tokenMgr.consume(TID.LCID).val )
+		tokenMgr.consume(TID.DOT)
+		term = parse_prec0(tokenMgr)
+		return Abstraction(var, term)
+	else:
+		return parse_prec1(tokenMgr)
+
+def parse_prec1(tokenMgr):
+	tmp = parse_prec2(tokenMgr)
+	
+def parse_prec1_(tokenMgr):
+	if not tokenMgr.isDone():
+		parse_prec0(tokenMgr)
+		
+def parse_prec2(tokenMgr):
+	if tokenMgr.peek() == TID.LPAREN:
+		tokenMgr.consume(TID.LPAREN)
+		term = parse_prec0(tokenMgr)
+		tokenMgr.consume(TID.RPAREN)
+	elif tokenMgr.peek() == TID.LCID:
+		return Variable( tokenMgr.consume(TID.LCID).val )
+	else:
+		raise("expected open parenthesis or lcid")
+
+def parse(tokenMgr):
+	parseTree = parse_prec0(tokenMgr)
+
+	if tokenMgr.isEnd():
+		return parseTree
+
+	raise("parse is done, but tokens remain %s...", tokenMgr.peek())
 
 ###############################################################################
 # MAIN
 ###############################################################################
 if __name__ == '__main__':
 	for line in sys.stdin:
+		line = line.rstrip()
+
+		print "input: " + line
+
 		tokenMgr = tokenize(line)
 
 		print tokenMgr
