@@ -9,6 +9,9 @@ all: re2lab
 re2lab: Gui.cxx Gui.h logic.cxx
 	g++ $(CPPFLAGS) $(FLAGS_FLTK) $(FLAGS_DEBUG) Gui.cxx logic.cxx -o re2lab $(LDFLAGS)
 
+install:
+
 clean:
 	rm re2lab
 	rm -rf re2lab.dSYM
+	install ./re2lab /usr/local/bin
