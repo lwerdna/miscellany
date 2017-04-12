@@ -32,7 +32,7 @@ for (i,srcPath) in enumerate(sorted(g)):
 	utils.runGetOutput(cmd)
 
 print "encoding files"
-cmd = 'ffmpeg -framerate 4 -i %s/%%06d.JPG -c:v libx264 -r 30 -pix_fmt yuv420p out.mp4' % tempdir
+cmd = 'ffmpeg -framerate 4 -i %s/%%06d.JPG -c:v libx264 -r 30 -pix_fmt yuv420p derp.mp4' % tempdir
 print "calling `%s`" % cmd
 utils.runGetOutput(cmd)
 
