@@ -2,6 +2,7 @@
 
 import os
 import sys
+import pdb
 
 ###############################################################################
 # TOKENIZING STUFF
@@ -9,6 +10,14 @@ import sys
 class TID:
 	LAMBDA,LCID,DOT,LPAREN,RPAREN = range(5)
 
+	@staticmethod
+	def id2str(ident):
+		lookup = {TID.LAMBDA:'LAMBDA', TID.LCID:'LCID', TID.DOT:'DOT', \
+			TID.LPAREN:'LPAREN', TID.RPAREN:'RPAREN'}
+		if not ident in lookup:
+			raise Exception("unknown token id: %d" % ident)
+		return lookup[ident]
+	
 class Token:
 	def __init__(self,ident,val=None):
 		self.ident, self.val = ident, val
@@ -19,19 +28,25 @@ class Token:
 
 		if self.ident == TID.LCID:
 			return 'LCID"%s"' % self.val
-		elif self.ident in lookup:
-			return lookup[self.ident]
 		else:
-			raise("unknown token id: %d" % self.ident)
+			return TID.id2str(self.ident)
 
-	def __eq__(self, lhs):
+	def __eq__(self, rhs):
+		result = None
+
+		if rhs == None:
+			result = False
 		# can compare directly to ints
-		if type(lhs) == type(self.ident):
-			return lhs == self.ident
-
+		elif type(rhs) == type(self.ident):
+			result = rhs == self.ident
 		# or to other tokens
-		return self.ident == lhs.ident and \
-			self.val == lhs.val
+		else:
+			result = self.ident == rhs.ident and self.val == rhs.val
+
+		return result
+
+	def __ne__(self, rhs):
+		return not self.__eq__(rhs)
 
 class TokenManager:
 	def __init__(self, tokenList):
@@ -46,15 +61,15 @@ class TokenManager:
 			return None
 		return self.tokenList[self.i + nAhead]
 	
-	def consume(self, expected=None):
+	def consume(self, expectTid=None):
 		if self.isEnd():
-			raise("token list is empty")
+			raise Exception("token list is empty")
 
 		tok = self.tokenList[self.i]
 		self.i += 1
 
-		if expected and tok != expected:
-			raise("expected token %s but got instead %s" % (expected, tok))
+		if expectTid != None and tok != expectTid:
+			raise Exception("expected token %s but got instead %s" % (TID.id2str(expectTid), tok))
 		
 		return tok	
 
@@ -97,7 +112,7 @@ def tokenize(line):
 			tokens.append(Token(TID.RPAREN))
 			i += 1
 		else:
-			raise("tokenizing on \"%s...\"" % chars[i:i+8])
+			raise Exception("tokenizing on \"%s...\"" % chars[i:i+8])
 
 	return TokenManager(tokens)
 
@@ -113,52 +128,82 @@ class Variable(Term):
 	def __init__(self, name):
 		self.name = name
 
+	def printTree(self, depth=0):
+		print ' ' * 2*depth,
+		print 'Variable "%s"' % self.name
+
 class Abstraction(Term):
 	def __init__(self, variable, term):
 		self.variable = variable
 		self.term = term
+
+	def printTree(self, depth=0):
+		print ' ' * 2*depth,
+		print 'Abstraction'
+		self.variable.printTree(depth+1)
+		self.term.printTree(depth+1)
 
 class Application(Term):
 	def __init__(self, termA, termB):
 		self.termA = termA
 		self.termB = termB
 
+	def printTree(self, depth=0):
+		print ' ' * 2*depth,
+		print 'Application'
+		self.termA.printTree(depth+1)
+		self.termB.printTree(depth+1)
+
 #------------------------------------------------------------------------------
 
-def parse_prec0(tokenMgr):
-	if tokenMgr.peek() == TID.LAMBDA:
-		tokenMgr.consume(TID.LAMBDA)
-		var = Variable( tokenMgr.consume(TID.LCID).val )
-		tokenMgr.consume(TID.DOT)
-		term = parse_prec0(tokenMgr)
+def parse_prec0(mgr):
+	if mgr.peek() == TID.LAMBDA:
+		mgr.consume(TID.LAMBDA)
+		var = Variable( mgr.consume(TID.LCID).val )
+		mgr.consume(TID.DOT)
+		term = parse_prec0(mgr)
 		return Abstraction(var, term)
 	else:
-		return parse_prec1(tokenMgr)
+		return parse_prec1(mgr)
 
-def parse_prec1(tokenMgr):
-	tmp = parse_prec2(tokenMgr)
+def parse_prec1(mgr):
+	p2 = parse_prec2(mgr)
+	p1 = parse_prec1_(mgr)
 	
-def parse_prec1_(tokenMgr):
-	if not tokenMgr.isDone():
-		parse_prec0(tokenMgr)
-		
-def parse_prec2(tokenMgr):
-	if tokenMgr.peek() == TID.LPAREN:
-		tokenMgr.consume(TID.LPAREN)
-		term = parse_prec0(tokenMgr)
-		tokenMgr.consume(TID.RPAREN)
-	elif tokenMgr.peek() == TID.LCID:
-		return Variable( tokenMgr.consume(TID.LCID).val )
+	if p1:
+		return Application(p2, p1)
 	else:
-		raise("expected open parenthesis or lcid")
+		return p2
+	
+def parse_prec1_(mgr):
+	if mgr.isEnd(): # empty string
+		return None
+	p0 = parse_prec0(mgr)
+	p1 = parse_prec1_(mgr)
+	if p1:
+		return Application(p0, p1)
+	return p0
+		
+def parse_prec2(mgr):
+	tok = mgr.peek()
+	if tok == TID.LPAREN:
+		mgr.consume(TID.LPAREN)
+		term = parse_prec0(mgr)
+		mgr.consume(TID.RPAREN)
+	elif tok == TID.LCID:
+		return Variable( mgr.consume(TID.LCID).val )
+	else:
+		raise Exception("expected open parenthesis or lcid (got instead: %s)" % tok)
 
-def parse(tokenMgr):
-	parseTree = parse_prec0(tokenMgr)
+# can never get these parsers perfect myself
+#  thanks to: int-e, monochrom, tadeuzagallo
+def parse(mgr):
+	parseTree = parse_prec0(mgr)
 
-	if tokenMgr.isEnd():
+	if mgr.isEnd():
 		return parseTree
 
-	raise("parse is done, but tokens remain %s...", tokenMgr.peek())
+	raise Exception("parse is done, but tokens remain %s...", mgr.peek())
 
 ###############################################################################
 # MAIN
@@ -170,5 +215,13 @@ if __name__ == '__main__':
 		print "input: " + line
 
 		tokenMgr = tokenize(line)
-
+		print 'tokens'
+		print '------'
 		print tokenMgr
+
+		print ''
+
+		ast = parse(tokenMgr)
+		print 'parse tree'
+		print '----------'
+		print ast.printTree()
