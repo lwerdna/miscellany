@@ -36,14 +36,23 @@ void onRegexChange()
 	free(body_);
 
 	// find all occurances
+	int n_matches = 0;
 	string regex = string("(") + gui->regex->value() + string(")");
+	printf("regex: -%s-\n", regex.c_str());
 	StringPiece place(body);
 	while(1) {
 		string m0;
-		if(!RE2::FindAndConsume(&place, regex.c_str(), &m0))
+		if(!RE2::FindAndConsume(&place, regex.c_str(), &m0)) {
+			printf("breaking on no match\n");
 			break;
+		}
 
-		if(m0.size() == 0) break;	
+		if(m0.size() == 0) {
+			printf("bailing on empty match\n");
+			break;	
+		}
+		
+		n_matches++;
 
 		// set highlight data for each
 		string::size_type matchIdx = 0;
@@ -58,6 +67,7 @@ void onRegexChange()
 		//printf("matched on -%s-\n", m0.c_str());
 	}
 
+	printf("total: %d matches\n", n_matches);
 	gui->body->redraw();
 }
 
