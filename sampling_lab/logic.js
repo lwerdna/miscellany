@@ -23,23 +23,26 @@ function debug(msg) {
 function recordsFromElem(elem)
 {
 	valueCol = parseInt(document.getElementById('valueColumn').value)
-	minimum = parseFloat(document.getElementById('minimum').value)
 
 	var result = []
-	var lines = elem.innerHTML.split("\n")
+	var lines = elem.value.split("\n")
 	for(var i=0; i<lines.length; ++i) {
 		var fields = lines[i].split("\t")
 		var record = {}
 
 		var valStr = fields[valueCol-1]
+		m = valStr.match(/^-?\$?([\d,]+\.?\d{1,2})$/)
+		if(!m) {
+			alert("ERROR: " + valStr + " doesn't look like a value")
+			return null;
+		}	
+		valStr = m[1]
 		valStr = valStr.replace(/,/g, '')
 		var value = Math.abs(parseFloat(valStr))
 
-		if(value >= minimum) {
-			record['value'] = Math.abs(parseFloat(valStr))
-			record['line'] = lines[i]
-			result.push(record)
-		}
+		record['value'] = Math.abs(parseFloat(valStr))
+		record['line'] = lines[i]
+		result.push(record)
 	}
 	return result
 }
@@ -59,7 +62,7 @@ function recordsToElem(records, elem)
 		}
 	}
 
-	elem.innerText = dataStr
+	elem.value = dataStr
 }
 
 /******************************************************************************
@@ -75,8 +78,11 @@ function doClear() {
 
 function doSampling() {
 	var records = recordsFromElem(g_input);
+	if(records == null) return
 	var weight = document.getElementById('weight').value
 	var sampSize = document.getElementById('sampSize').value
+	var useMateriality = document.getElementById('useMateriality').value
+	var materiality = parseFloat(document.getElementById('materiality').value)
 
 	/* sanity check */
 	if(sampSize > records.length) {
@@ -111,9 +117,21 @@ function doSampling() {
 		cur = ticketHi
 	}
 
-	/* draw winners */
 	var winners = []
 	var losers = []
+
+	/* if materiality specified, values >= materiality automatically win */
+	if(useMateriality == 'on') {
+		for(var i=0; i<pool.length; ++i) {
+			if(pool[i]['value'] >= materiality)
+				winners.push(pool[i])
+
+			if(winners.length >= sampSize)
+				break;
+		}
+	}
+
+	/* draw winners */
 	while(pool.length) {
 		var ticket = Math.random() * pool[pool.length-1]['ticketHi']
 
