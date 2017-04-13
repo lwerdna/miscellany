@@ -23,6 +23,7 @@ function debug(msg) {
 function recordsFromElem(elem)
 {
 	valueCol = parseInt(document.getElementById('valueColumn').value)
+	minimum = parseFloat(document.getElementById('minimum').value)
 
 	var result = []
 	var lines = elem.innerHTML.split("\n")
@@ -32,9 +33,13 @@ function recordsFromElem(elem)
 
 		var valStr = fields[valueCol-1]
 		valStr = valStr.replace(/,/g, '')
-		record['value'] = Math.abs(parseFloat(valStr))
-		record['line'] = lines[i]
-		result.push(record)
+		var value = Math.abs(parseFloat(valStr))
+
+		if(value >= minimum) {
+			record['value'] = Math.abs(parseFloat(valStr))
+			record['line'] = lines[i]
+			result.push(record)
+		}
 	}
 	return result
 }
