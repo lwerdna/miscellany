@@ -17,6 +17,15 @@ function debug(msg) {
  * HELPERS
  *****************************************************************************/
 
+function moneyTextToNum(text)
+{
+	m = text.match(/^-?\$?([\d,]+(\.\d{1,2})?)$/)
+	if(!m) return null
+	valStr = m[1]
+	valStr = valStr.replace(/,/g, '')
+	return Math.abs(parseFloat(valStr))
+}
+
 /* parses the lines of an element, splitting on tab
 	returns array of records
 	where record is {'value':<number>, 'line':<line>} */
@@ -31,16 +40,13 @@ function recordsFromElem(elem)
 		var record = {}
 
 		var valStr = fields[valueCol-1]
-		m = valStr.match(/^-?\$?([\d,]+\.?\d{1,2})$/)
-		if(!m) {
-			alert("ERROR: " + valStr + " doesn't look like a value")
+		var value = moneyTextToNum(valStr)
+		if(value == null) {
+			alert("ERROR: " + valStr + " doesn't look like a decimal value")
 			return null;
-		}	
-		valStr = m[1]
-		valStr = valStr.replace(/,/g, '')
-		var value = Math.abs(parseFloat(valStr))
+		}
 
-		record['value'] = Math.abs(parseFloat(valStr))
+		record['value'] = value 
 		record['line'] = lines[i]
 		result.push(record)
 	}
@@ -81,10 +87,19 @@ function doSampling() {
 	if(records == null) return
 	var weight = document.getElementById('weight').value
 	var sampSize = document.getElementById('sampSize').value
-	var useMateriality = document.getElementById('useMateriality').value
-	var materiality = parseFloat(document.getElementById('materiality').value)
+	var useMateriality = document.getElementById('useMateriality')
+	var materiality
 
-	/* sanity check */
+	/* input validation */
+	if(useMateriality.checked) {
+		var str = document.getElementById('materiality').value
+		materiality = moneyTextToNum(str)
+		if(materiality == null) {
+			alert("ERROR: materiality " + str + " doesn't look like a decimal value")
+			return;
+		}
+	}
+
 	if(sampSize > records.length) {
 		alert("ERROR: you can't sample " + sampSize + 
 			" records from a pool of " + records.length)
@@ -121,7 +136,7 @@ function doSampling() {
 	var losers = []
 
 	/* if materiality specified, values >= materiality automatically win */
-	if(useMateriality == 'on') {
+	if(useMateriality.checked) {
 		for(var i=0; i<pool.length; ++i) {
 			if(pool[i]['value'] >= materiality)
 				winners.push(pool[i])
