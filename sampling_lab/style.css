@@ -5,6 +5,7 @@ body {
 }
 
 textarea {
+	font-family: Courier New,Courier,Lucida Sans Typewriter,Lucida Typewriter,monospace; 
     width: 100%;
 	margin: 0;
 }
