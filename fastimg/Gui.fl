@@ -1,0 +1,72 @@
+# data file for the Fltk User Interface Designer (fluid)
+version 1.0304
+header_name {.h}
+code_name {.cxx}
+decl {\#include "logic.h"} {private local
+}
+
+decl {\#include "DndImage.h"} {selected public local
+}
+
+class Gui {open
+} {
+  Function {make_window()} {open
+  } {
+    Fl_Window {} {
+      label fastimg open
+      xywh {472 251 1042 831} type Double visible
+    } {
+      Fl_Tabs {} {open
+        xywh {0 0 1040 828}
+      } {
+        Fl_Group {} {
+          label Resize open
+          xywh {0 21 1034 755}
+        } {
+          Fl_Value_Input resizeWidth {
+            label {width:}
+            xywh {49 28 41 20}
+            code0 {resizeWidth->value(1024);}
+          }
+          Fl_Value_Input resizeHeight {
+            label {height:}
+            xywh {140 28 41 21}
+            code0 {resizeHeight->value(768);}
+          }
+          Fl_Button resizeBtnSave {
+            label Save
+            xywh {191 28 63 20}
+          }
+          Fl_Button resizeBtnSaveAs {
+            label {Save As}
+            xywh {264 28 63 20}
+          }
+          Fl_Box resizeImg {
+            xywh {10 56 1024 720}
+            class DndImage
+          }
+        }
+        Fl_Group {} {
+          label 2x2 open
+          xywh {4 25 644 359} hide
+        } {}
+        Fl_Group {} {
+          label 4x4 open
+          xywh {12 33 1028 795} hide
+        } {}
+      }
+    }
+  }
+}
+
+Function {main(int ac, char **av)} {open return_type int
+} {
+  code {Gui gui;
+Fl_Double_Window *w = gui.make_window();
+onGuiInit(&gui);
+w->end();
+w->show();
+int rc = Fl::run();
+onGuiExit(rc);
+return rc;} {}
+}
