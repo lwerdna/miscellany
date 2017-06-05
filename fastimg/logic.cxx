@@ -58,3 +58,92 @@ void onSetOriginalDims()
 	cleanup:
 	while(0);
 }
+
+void onBtnCenter()
+{
+	//gui->btnCenter->value(0);
+	gui->btnCorner->value(0);
+	gui->btnStretchNS->value(0);
+	gui->btnStretchEW->value(0);
+	gui->btnFill->value(0);
+	gui->btnClip->value(0);
+	gui->resizeImg->setDisplayOpts(DISPLAY_OPT_CENTER);
+	gui->tabs->redraw();
+}
+
+void onBtnCorner()
+{
+	gui->btnCenter->value(0);
+	//gui->btnCorner->value(0);
+	gui->btnStretchNS->value(0);
+	gui->btnStretchEW->value(0);
+	gui->btnFill->value(0);
+	gui->btnClip->value(0);
+	gui->resizeImg->setDisplayOpts(DISPLAY_OPT_TOP_LEFT);
+	gui->tabs->redraw();
+}
+
+void onBtnStretchNS()
+{
+	gui->btnCenter->value(0);
+	gui->btnCorner->value(0);
+	//gui->btnStretchNS->value(0);
+	gui->btnStretchEW->value(0);
+	gui->btnFill->value(0);
+	gui->btnClip->value(0);
+	gui->resizeImg->setDisplayOpts(DISPLAY_OPT_EXPAND_HEIGHT);
+	gui->resizeImg->redraw();
+	gui->tabs->redraw();
+}
+
+void onBtnStretchEW()
+{
+	gui->btnCenter->value(0);
+	gui->btnCorner->value(0);
+	gui->btnStretchNS->value(0);
+	//gui->btnStretchEW->value(0);
+	gui->btnFill->value(0);
+	gui->btnClip->value(0);
+	gui->resizeImg->setDisplayOpts(DISPLAY_OPT_EXPAND_WIDTH);
+	gui->tabs->redraw();
+}
+
+void onBtnFill()
+{
+	gui->btnCenter->value(0);
+	gui->btnCorner->value(0);
+	gui->btnStretchNS->value(0);
+	gui->btnStretchEW->value(0);
+	//gui->btnFill->value(0);
+	gui->btnClip->value(0);
+	gui->resizeImg->setDisplayOpts(DISPLAY_OPT_MATCH_WIDTH | DISPLAY_OPT_MATCH_HEIGHT);
+	gui->tabs->redraw();
+}
+
+void onBtnClip()
+{
+	gui->btnCenter->value(0);
+	gui->btnCorner->value(0);
+	gui->btnStretchNS->value(0);
+	gui->btnStretchEW->value(0);
+	gui->btnFill->value(0);
+	//gui->btnClip->value(0);
+	gui->resizeImg->setDisplayOpts(DISPLAY_OPT_TOP_LEFT);
+	gui->tabs->redraw();
+}
+
+void setAbsoluteResolution(int w, int h)
+{
+	/* set our width/height fields */
+	gui->resizeWidth->value(w);
+	gui->resizeHeight->value(h);
+
+	/* resize the image display widget */
+	gui->resizeImg->size(w, h);
+	gui->resizeImg->setDisplayOpts(DISPLAY_OPT_MATCH_WIDTH | DISPLAY_OPT_MATCH_HEIGHT);
+
+	/* redraw parent */
+	gui->tabs->redraw();
+}
+
+

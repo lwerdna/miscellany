@@ -4,4 +4,12 @@ void onGuiExit(int retFromFlRun);
 void onResizeWidthChange(int width);
 void onResizeHeightChange(int height);
 
+void setAbsoluteResolution(int w, int h);
 void onSetOriginalDims();
+
+void onBtnCenter();
+void onBtnCorner();
+void onBtnStretchNS();
+void onBtnStretchEW();
+void onBtnFill();
+void onBtnClip();

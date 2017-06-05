@@ -21,6 +21,7 @@ using namespace std;
 #define DISPLAY_OPT_SHRINK_HEIGHT 16
 #define DISPLAY_OPT_MATCH_WIDTH 32
 #define DISPLAY_OPT_MATCH_HEIGHT 64
+#define DISPLAY_OPT_CENTER 128
 
 #define IMG_FILE_TYPE_INVALID 0
 #define IMG_FILE_TYPE_JPG 1
@@ -31,6 +32,7 @@ class DndImage : public Fl_Widget
     public:
 	vector<uint8_t> imgFileBuf;
 	int imgFileType = IMG_FILE_TYPE_INVALID;
+	int displayLocX=0, displayLocY=0;
 
 	Fl_Image *myImage = NULL;
 	bool dndEnabled = true;
@@ -50,6 +52,8 @@ class DndImage : public Fl_Widget
 	
 	/* API */
 	void setDisplayOpts(int opts);
+	void setInterpolation(int interp);
 	void setDndEnabled(bool enab);
 	int getImageDims(int *width, int *height);
+	int writePng(char *filePath);
 };

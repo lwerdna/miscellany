@@ -9,6 +9,7 @@
 #include <FL/Fl_Group.H>
 #include <FL/Fl_Value_Input.H>
 #include <FL/Fl_Button.H>
+#include <FL/Fl_Round_Button.H>
 
 class Gui {
 public:
@@ -26,10 +27,56 @@ private:
   static void cb_resizeHeight(Fl_Value_Input*, void*);
 public:
   Fl_Button *resizeBtnSave;
+private:
+  inline void cb_resizeBtnSave_i(Fl_Button*, void*);
+  static void cb_resizeBtnSave(Fl_Button*, void*);
+public:
   Fl_Button *resizeBtnSaveAs;
 private:
   inline void cb_Original_i(Fl_Button*, void*);
   static void cb_Original(Fl_Button*, void*);
+public:
+  Fl_Round_Button *btnCenter;
+private:
+  inline void cb_btnCenter_i(Fl_Round_Button*, void*);
+  static void cb_btnCenter(Fl_Round_Button*, void*);
+public:
+  Fl_Round_Button *btnCorner;
+private:
+  inline void cb_btnCorner_i(Fl_Round_Button*, void*);
+  static void cb_btnCorner(Fl_Round_Button*, void*);
+public:
+  Fl_Round_Button *btnStretchEW;
+private:
+  inline void cb_btnStretchEW_i(Fl_Round_Button*, void*);
+  static void cb_btnStretchEW(Fl_Round_Button*, void*);
+public:
+  Fl_Round_Button *btnStretchNS;
+private:
+  inline void cb_btnStretchNS_i(Fl_Round_Button*, void*);
+  static void cb_btnStretchNS(Fl_Round_Button*, void*);
+public:
+  Fl_Round_Button *btnFill;
+private:
+  inline void cb_btnFill_i(Fl_Round_Button*, void*);
+  static void cb_btnFill(Fl_Round_Button*, void*);
+public:
+  Fl_Round_Button *btnClip;
+private:
+  inline void cb_btnClip_i(Fl_Round_Button*, void*);
+  static void cb_btnClip(Fl_Round_Button*, void*);
+  inline void cb_1024x768_i(Fl_Button*, void*);
+  static void cb_1024x768(Fl_Button*, void*);
+  inline void cb_640x480_i(Fl_Button*, void*);
+  static void cb_640x480(Fl_Button*, void*);
+  inline void cb_640x360_i(Fl_Button*, void*);
+  static void cb_640x360(Fl_Button*, void*);
+  inline void cb_960x540_i(Fl_Button*, void*);
+  static void cb_960x540(Fl_Button*, void*);
+  inline void cb_1920x1080_i(Fl_Button*, void*);
+  static void cb_1920x1080(Fl_Button*, void*);
+  inline void cb_320x180_i(Fl_Button*, void*);
+  static void cb_320x180(Fl_Button*, void*);
 public:
   DndImage *resizeImg;
 };

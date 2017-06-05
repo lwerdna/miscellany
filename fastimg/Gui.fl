@@ -14,52 +14,114 @@ class Gui {open
   } {
     Fl_Window {} {
       label fastimg open
-      xywh {511 275 1042 831} type Double visible
+      xywh {141 253 1044 908} type Double visible
     } {
       Fl_Tabs tabs {open
-        xywh {0 0 1040 828}
+        xywh {-4 0 1061 896}
       } {
         Fl_Group tabResize {
           label Resize open
-          xywh {0 21 1034 755}
+          xywh {-4 20 1060 876}
         } {
           Fl_Value_Input resizeWidth {
             label {width:}
             callback {onResizeWidthChange(resizeWidth->value());}
-            xywh {49 28 41 20}
+            xywh {47 24 41 20}
             code0 {resizeWidth->value(1024);}
           }
           Fl_Value_Input resizeHeight {
             label {height:}
             callback {onResizeHeightChange(resizeHeight->value());}
-            xywh {140 28 41 21}
+            xywh {138 24 41 20}
             code0 {resizeHeight->value(768);}
           }
           Fl_Button resizeBtnSave {
             label Save
-            xywh {191 28 63 20}
+            callback {resizeImg->writePng();} selected
+            xywh {594 24 63 20}
           }
           Fl_Button resizeBtnSaveAs {
             label {Save As}
-            xywh {264 28 63 20}
+            xywh {667 24 63 20}
           }
           Fl_Button {} {
             label {Original Dims}
-            callback {onSetOriginalDims();} selected
-            xywh {338 28 93 20}
+            callback {onSetOriginalDims();}
+            xywh {184 27 108 20}
+          }
+          Fl_Round_Button btnCenter {
+            label center
+            callback {onBtnCenter();}
+            xywh {350 24 63 15} down_box ROUND_DOWN_BOX
+          }
+          Fl_Round_Button btnCorner {
+            label corner
+            callback {onBtnCorner();}
+            xywh {350 38 63 15} down_box ROUND_DOWN_BOX
+          }
+          Fl_Round_Button btnStretchEW {
+            label {stretch EW}
+            callback {onBtnStretchEW();}
+            comment {			}
+            xywh {410 38 63 15} down_box ROUND_DOWN_BOX
+          }
+          Fl_Round_Button btnStretchNS {
+            label {stretch NS}
+            callback {onBtnStretchNS();}
+            xywh {410 24 63 15} down_box ROUND_DOWN_BOX
+          }
+          Fl_Round_Button btnFill {
+            label fill
+            callback {onBtnFill();}
+            xywh {502 24 63 15} down_box ROUND_DOWN_BOX
+          }
+          Fl_Round_Button btnClip {
+            label clip
+            callback {onBtnClip();}
+            xywh {502 38 63 15} down_box ROUND_DOWN_BOX
+          }
+          Fl_Button {} {
+            label {1024x768 4:3}
+            callback {setAbsoluteResolution(1024,768);}
+            xywh {3 47 92 20}
+          }
+          Fl_Button {} {
+            label {640x480 4:3}
+            callback {setAbsoluteResolution(640,480);}
+            xywh {95 47 90 20}
+          }
+          Fl_Button {} {
+            label {640x360 16:9}
+            callback {setAbsoluteResolution(640,360);}
+            xywh {95 67 90 20}
+          }
+          Fl_Button {} {
+            label {960x540 16:9}
+            callback {setAbsoluteResolution(960,540);}
+            xywh {2 67 93 20}
+          }
+          Fl_Button {} {
+            label {1920x1080 16:9}
+            callback {setAbsoluteResolution(1920,1080);}
+            xywh {185 67 107 20}
+          }
+          Fl_Button {} {
+            label {320x180 16:9}
+            callback {setAbsoluteResolution(320,180);}
+            xywh {185 47 107 20}
           }
           Fl_Box resizeImg {
-            xywh {10 56 1024 720}
+            xywh {6 88 1024 808}
             class DndImage
           }
         }
         Fl_Group {} {
           label 2x2 open
-          xywh {4 25 644 359} hide
+          xywh {0 20 1024 800} hide
         } {}
         Fl_Group {} {
           label 4x4 open
-          xywh {12 33 1028 795} hide
+          xywh {0 20 1024 800} hide
         } {}
       }
     }

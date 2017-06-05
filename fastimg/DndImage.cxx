@@ -1,4 +1,5 @@
 /* c */
+#include <stdlib.h>
 #include <string.h>
 #include <inttypes.h>
 
@@ -17,6 +18,7 @@ using namespace std;
 /* fltk */
 #include <FL/Fl.H>
 #include <FL/Fl_Widget.H>
+#include <FL/Fl_Image_Surface.h>
 
 /* us */
 #include "DndImage.h"
@@ -54,8 +56,8 @@ void DndImage::displayConversion(void)
 	/* decide on resize dimensions */	
 	gdStruct = (gdImageStruct *)gip;
 
-	oldWidth = gdStruct->sx;
-	oldHeight = gdStruct->sy;
+	oldWidth = newWidth = gdStruct->sx;
+	oldHeight = newHeight = gdStruct->sy;
 
 	if(displayOpts & DISPLAY_OPT_TOP_LEFT) {
 		newWidth = oldWidth;
@@ -93,6 +95,18 @@ void DndImage::displayConversion(void)
 		gdImagePtr tmp = gdImageScale(gip, newWidth, newHeight);
 		gdImageDestroy(gip);
 		gip = tmp;
+	}
+
+	/* decide on display location */
+	displayLocX = displayLocY = 0;
+	if(displayOpts & DISPLAY_OPT_CENTER) {
+		
+		int centerPicW = newWidth / 2;
+		int centerPicH = newHeight / 2;
+		int centerAreaW = w()/2;
+		int centerAreaH = h()/2;
+		displayLocX = centerAreaW - centerPicW;
+		displayLocY = centerAreaH - centerPicH;
 	}
 
 	/* allocate a buffer that has the image data */
@@ -137,11 +151,14 @@ void DndImage::draw(void)
 	printf("drawing a rectangle sized %d, %d\n", w_, h_);
 	fl_rectf(x_, y_, w_, h_, FL_GREEN);
 
-	if(!myImage) return;
-	myImage->draw(x_, y_);
+	if(!myImage) {
+		goto cleanup;
+	}
 
+	myImage->draw(x_ + displayLocX, y_+displayLocY);
+
+	cleanup:
 	fl_pop_clip();
-
 	return;
 }
 
@@ -239,7 +256,11 @@ void DndImage::resize(int x, int y, int w, int h)
 	
 void DndImage::setDisplayOpts(int opts)
 {
+	bool recalc = (displayOpts != opts);
+
 	displayOpts = opts;
+
+	if(recalc) displayConversion();
 }
 
 int DndImage::getImageDims(int *width, int *height)
@@ -276,3 +297,75 @@ int DndImage::getImageDims(int *width, int *height)
 	return rc;
 }
 
+int DndImage::writePng(char *filePath)
+{
+	int rc = -1;
+	Fl_Surface_Device *surfTmp = NULL;
+	Fl_RGB_Image *imageRGB = NULL;
+	gdImagePtr im = NULL;
+	FILE *fp = NULL;
+	uint8_t *rgb;
+	int w_ = w();
+	int h_ = h();
+
+	/* create a temporary fake surface, swapping it in */
+	Fl_Image_Surface surfImg(w_, h_);
+	surfTmp = Fl_Surface_Device::surface();
+	surfImg.set_current();
+	
+	/* draw on the fake surface */
+	int oldX = x();
+	int oldY = y();
+	x(0);
+	y(0);	
+	draw();
+	x(oldX);
+	y(oldY);
+
+	/* replace the original surface */
+	surfTmp->set_current();
+
+	/* access RGB data by converting to an Fl_RGB_Image */
+	imageRGB = surfImg.image();
+
+	if(imageRGB->count() != 1) {
+		printf("ERROR: expected data count == 1\n");
+		goto cleanup;
+	}
+
+	if(imageRGB->d() != 3) {
+		printf("ERROR: expected image depth == 3\n");
+		goto cleanup;
+	}
+
+	if(imageRGB->ld() != 0) {
+		printf("ERROR: expected image line data size == 0\n");
+		goto cleanup;
+	}
+
+	rgb = (uint8_t *) imageRGB->data()[0];
+
+	/* create a gd image */
+	im = gdImageCreateTrueColor(w_, h_);
+	for(int x=0; x<w_; ++x) {
+		for(int y=0; y<h_; ++y) {
+			int pixIdx = 3*(w_*y + x);
+			uint32_t color = (rgb[pixIdx+0] << 16) | (rgb[pixIdx+1] << 8) | rgb[pixIdx+2];
+			gdImageSetPixel(im, x, y, color);
+		}
+	}
+
+	/* write gd image to file */
+	fp = fopen(filePath, "wb");
+	gdImagePng(im, fp);
+	fclose(fp);
+
+	/* done */
+	rc = 0;
+	cleanup:
+	//if(imageRGB) 
+	//	Fl_Shared_Image::release();
+	if(im)
+		gdImageDestroy(im);
+	return rc;
+}
