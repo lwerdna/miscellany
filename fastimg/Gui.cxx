@@ -3,23 +3,49 @@
 #include "Gui.h"
 #include "logic.h"
 
+void Gui::cb_resizeWidth_i(Fl_Value_Input*, void*) {
+  onResizeWidthChange(resizeWidth->value());
+}
+void Gui::cb_resizeWidth(Fl_Value_Input* o, void* v) {
+  ((Gui*)(o->parent()->parent()->parent()->user_data()))->cb_resizeWidth_i(o,v);
+}
+
+void Gui::cb_resizeHeight_i(Fl_Value_Input*, void*) {
+  onResizeHeightChange(resizeHeight->value());
+}
+void Gui::cb_resizeHeight(Fl_Value_Input* o, void* v) {
+  ((Gui*)(o->parent()->parent()->parent()->user_data()))->cb_resizeHeight_i(o,v);
+}
+
+void Gui::cb_Original_i(Fl_Button*, void*) {
+  onSetOriginalDims();
+}
+void Gui::cb_Original(Fl_Button* o, void* v) {
+  ((Gui*)(o->parent()->parent()->parent()->user_data()))->cb_Original_i(o,v);
+}
+
 Fl_Double_Window* Gui::make_window() {
   Fl_Double_Window* w;
   { Fl_Double_Window* o = new Fl_Double_Window(1042, 831, "fastimg");
     w = o; if (w) {/* empty */}
     o->user_data((void*)(this));
-    { Fl_Tabs* o = new Fl_Tabs(0, 0, 1040, 828);
-      { Fl_Group* o = new Fl_Group(0, 21, 1034, 755, "Resize");
+    { tabs = new Fl_Tabs(0, 0, 1040, 828);
+      { tabResize = new Fl_Group(0, 21, 1034, 755, "Resize");
         { resizeWidth = new Fl_Value_Input(49, 28, 41, 20, "width:");
+          resizeWidth->callback((Fl_Callback*)cb_resizeWidth);
           resizeWidth->value(1024);
         } // Fl_Value_Input* resizeWidth
         { resizeHeight = new Fl_Value_Input(140, 28, 41, 21, "height:");
+          resizeHeight->callback((Fl_Callback*)cb_resizeHeight);
           resizeHeight->value(768);
         } // Fl_Value_Input* resizeHeight
         { resizeBtnSave = new Fl_Button(191, 28, 63, 20, "Save");
         } // Fl_Button* resizeBtnSave
         { resizeBtnSaveAs = new Fl_Button(264, 28, 63, 20, "Save As");
         } // Fl_Button* resizeBtnSaveAs
+        { Fl_Button* o = new Fl_Button(338, 28, 93, 20, "Original Dims");
+          o->callback((Fl_Callback*)cb_Original);
+        } // Fl_Button* o
         { resizeImg = new DndImage(10, 56, 1024, 720);
           resizeImg->box(FL_NO_BOX);
           resizeImg->color(FL_BACKGROUND_COLOR);
@@ -31,8 +57,8 @@ Fl_Double_Window* Gui::make_window() {
           resizeImg->align(Fl_Align(FL_ALIGN_CENTER));
           resizeImg->when(FL_WHEN_RELEASE);
         } // DndImage* resizeImg
-        o->end();
-      } // Fl_Group* o
+        tabResize->end();
+      } // Fl_Group* tabResize
       { Fl_Group* o = new Fl_Group(4, 25, 644, 359, "2x2");
         o->hide();
         o->end();
@@ -41,8 +67,8 @@ Fl_Double_Window* Gui::make_window() {
         o->hide();
         o->end();
       } // Fl_Group* o
-      o->end();
-    } // Fl_Tabs* o
+      tabs->end();
+    } // Fl_Tabs* tabs
     o->end();
   } // Fl_Double_Window* o
   return w;

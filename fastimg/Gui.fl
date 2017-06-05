@@ -5,7 +5,7 @@ code_name {.cxx}
 decl {\#include "logic.h"} {private local
 }
 
-decl {\#include "DndImage.h"} {selected public local
+decl {\#include "DndImage.h"} {public local
 }
 
 class Gui {open
@@ -14,22 +14,24 @@ class Gui {open
   } {
     Fl_Window {} {
       label fastimg open
-      xywh {472 251 1042 831} type Double visible
+      xywh {511 275 1042 831} type Double visible
     } {
-      Fl_Tabs {} {open
+      Fl_Tabs tabs {open
         xywh {0 0 1040 828}
       } {
-        Fl_Group {} {
+        Fl_Group tabResize {
           label Resize open
           xywh {0 21 1034 755}
         } {
           Fl_Value_Input resizeWidth {
             label {width:}
+            callback {onResizeWidthChange(resizeWidth->value());}
             xywh {49 28 41 20}
             code0 {resizeWidth->value(1024);}
           }
           Fl_Value_Input resizeHeight {
             label {height:}
+            callback {onResizeHeightChange(resizeHeight->value());}
             xywh {140 28 41 21}
             code0 {resizeHeight->value(768);}
           }
@@ -40,6 +42,11 @@ class Gui {open
           Fl_Button resizeBtnSaveAs {
             label {Save As}
             xywh {264 28 63 20}
+          }
+          Fl_Button {} {
+            label {Original Dims}
+            callback {onSetOriginalDims();} selected
+            xywh {338 28 93 20}
           }
           Fl_Box resizeImg {
             xywh {10 56 1024 720}

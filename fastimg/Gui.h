@@ -13,10 +13,24 @@
 class Gui {
 public:
   Fl_Double_Window* make_window();
+  Fl_Tabs *tabs;
+  Fl_Group *tabResize;
   Fl_Value_Input *resizeWidth;
+private:
+  inline void cb_resizeWidth_i(Fl_Value_Input*, void*);
+  static void cb_resizeWidth(Fl_Value_Input*, void*);
+public:
   Fl_Value_Input *resizeHeight;
+private:
+  inline void cb_resizeHeight_i(Fl_Value_Input*, void*);
+  static void cb_resizeHeight(Fl_Value_Input*, void*);
+public:
   Fl_Button *resizeBtnSave;
   Fl_Button *resizeBtnSaveAs;
+private:
+  inline void cb_Original_i(Fl_Button*, void*);
+  static void cb_Original(Fl_Button*, void*);
+public:
   DndImage *resizeImg;
 };
 int main(int ac, char **av);
