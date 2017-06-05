@@ -76,10 +76,10 @@ function recordsToElem(records, elem)
  *****************************************************************************/
 
 function doClear() {
-	g_input.innerText = ''
-	g_output.innerText = ''
+	g_input.value = ''
+	g_output.value = ''
 	g_canvas.width = 1
-	g_canvas.height = 1
+	g_canvas.height = 100
 }
 
 function doSampling() {
