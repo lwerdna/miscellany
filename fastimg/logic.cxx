@@ -4,10 +4,29 @@
 
 Gui *gui;
 
+void cbDndImage(int reason)
+{
+	switch(reason)
+	{
+		case CB_REASON_FILE_OPENED:
+		{
+			string fpath = gui->resizeImg->getImagePath();
+			gui->fpathIn->value(fpath.c_str());
+			if(0 == strcmp(gui->fpathOut->value(), "")) {
+				gui->fpathOut->value(fpath.c_str());
+			}
+			break;
+		}
+	}
+}
+
 void onGuiInit(Gui *gui_)
 {
 	gui = gui_;
 	printf("%s()\n", __func__);
+	gui->fpathIn->value("");
+	gui->fpathOut->value("");
+	gui->resizeImg->setCallback(cbDndImage);
 }
 
 void onGuiExit(int retFromFlRun)
@@ -130,6 +149,11 @@ void onBtnClip()
 	//gui->btnClip->value(0);
 	gui->resizeImg->setDisplayOpts(DISPLAY_OPT_TOP_LEFT);
 	gui->tabs->redraw();
+}
+
+void onBtnSave()
+{
+	printf("%s()\n", __func__);
 }
 
 void setAbsoluteResolution(int w, int h)

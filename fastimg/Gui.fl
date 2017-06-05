@@ -14,7 +14,7 @@ class Gui {open
   } {
     Fl_Window {} {
       label fastimg open
-      xywh {141 253 1044 908} type Double visible
+      xywh {118 253 1044 908} type Double visible
     } {
       Fl_Tabs tabs {open
         xywh {-4 0 1061 896}
@@ -37,12 +37,8 @@ class Gui {open
           }
           Fl_Button resizeBtnSave {
             label Save
-            callback {resizeImg->writePng();} selected
-            xywh {594 24 63 20}
-          }
-          Fl_Button resizeBtnSaveAs {
-            label {Save As}
-            xywh {667 24 63 20}
+            callback {onBtnSave();}
+            xywh {635 73 63 20}
           }
           Fl_Button {} {
             label {Original Dims}
@@ -110,9 +106,17 @@ class Gui {open
             callback {setAbsoluteResolution(320,180);}
             xywh {185 47 107 20}
           }
-          Fl_Box resizeImg {
+          Fl_Box resizeImg {selected
             xywh {6 88 1024 808}
             class DndImage
+          }
+          Fl_Output fpathOut {
+            label {output:}
+            xywh {635 47 406 24}
+          }
+          Fl_Output fpathIn {
+            label {input:}
+            xywh {635 22 406 22}
           }
         }
         Fl_Group {} {

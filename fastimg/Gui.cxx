@@ -18,7 +18,7 @@ void Gui::cb_resizeHeight(Fl_Value_Input* o, void* v) {
 }
 
 void Gui::cb_resizeBtnSave_i(Fl_Button*, void*) {
-  resizeImg->writePng();
+  onBtnSave();
 }
 void Gui::cb_resizeBtnSave(Fl_Button* o, void* v) {
   ((Gui*)(o->parent()->parent()->parent()->user_data()))->cb_resizeBtnSave_i(o,v);
@@ -130,11 +130,9 @@ Fl_Double_Window* Gui::make_window() {
           resizeHeight->callback((Fl_Callback*)cb_resizeHeight);
           resizeHeight->value(768);
         } // Fl_Value_Input* resizeHeight
-        { resizeBtnSave = new Fl_Button(594, 24, 63, 20, "Save");
+        { resizeBtnSave = new Fl_Button(635, 73, 63, 20, "Save");
           resizeBtnSave->callback((Fl_Callback*)cb_resizeBtnSave);
         } // Fl_Button* resizeBtnSave
-        { resizeBtnSaveAs = new Fl_Button(667, 24, 63, 20, "Save As");
-        } // Fl_Button* resizeBtnSaveAs
         { Fl_Button* o = new Fl_Button(184, 27, 108, 20, "Original Dims");
           o->callback((Fl_Callback*)cb_Original);
         } // Fl_Button* o
@@ -192,6 +190,10 @@ Fl_Double_Window* Gui::make_window() {
           resizeImg->align(Fl_Align(FL_ALIGN_CENTER));
           resizeImg->when(FL_WHEN_RELEASE);
         } // DndImage* resizeImg
+        { fpathOut = new Fl_Output(635, 47, 406, 24, "output:");
+        } // Fl_Output* fpathOut
+        { fpathIn = new Fl_Output(635, 22, 406, 22, "input:");
+        } // Fl_Output* fpathIn
         tabResize->end();
       } // Fl_Group* tabResize
       { Fl_Group* o = new Fl_Group(0, 20, 1024, 800, "2x2");

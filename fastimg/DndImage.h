@@ -27,12 +27,20 @@ using namespace std;
 #define IMG_FILE_TYPE_JPG 1
 #define IMG_FILE_TYPE_PNG 2
 
+#define CB_REASON_FILE_OPENED 0
+
+typedef void (*imageCallback)(int);
+
 class DndImage : public Fl_Widget
 {
     public:
-	vector<uint8_t> imgFileBuf;
-	int imgFileType = IMG_FILE_TYPE_INVALID;
+	/* info on the currently open file */
+	string imageFilePath;
+	vector<uint8_t> imageFileBuf;
+	int imageFileType = IMG_FILE_TYPE_INVALID;
+
 	int displayLocX=0, displayLocY=0;
+	imageCallback callback = NULL;
 
 	Fl_Image *myImage = NULL;
 	bool dndEnabled = true;
@@ -54,6 +62,8 @@ class DndImage : public Fl_Widget
 	void setDisplayOpts(int opts);
 	void setInterpolation(int interp);
 	void setDndEnabled(bool enab);
+	string getImagePath(void);
 	int getImageDims(int *width, int *height);
 	int writePng(char *filePath);
+	void setCallback(imageCallback cb);
 };

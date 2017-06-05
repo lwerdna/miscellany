@@ -10,6 +10,7 @@
 #include <FL/Fl_Value_Input.H>
 #include <FL/Fl_Button.H>
 #include <FL/Fl_Round_Button.H>
+#include <FL/Fl_Output.H>
 
 class Gui {
 public:
@@ -30,9 +31,6 @@ public:
 private:
   inline void cb_resizeBtnSave_i(Fl_Button*, void*);
   static void cb_resizeBtnSave(Fl_Button*, void*);
-public:
-  Fl_Button *resizeBtnSaveAs;
-private:
   inline void cb_Original_i(Fl_Button*, void*);
   static void cb_Original(Fl_Button*, void*);
 public:
@@ -79,6 +77,8 @@ private:
   static void cb_320x180(Fl_Button*, void*);
 public:
   DndImage *resizeImg;
+  Fl_Output *fpathOut;
+  Fl_Output *fpathIn;
 };
 int main(int ac, char **av);
 #endif
