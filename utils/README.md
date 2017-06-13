@@ -7,3 +7,6 @@ binary, eg: `ftime` or `getpics`.
 
 # getpics.py
 * get pics/vids from Android phone taken in last 24 hours, go back further with command line switches
+
+# decrypt.py
+* decrypts my personal files, key derivation is sha1(pass), cipher is XTEA in OFB mode
