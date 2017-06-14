@@ -3,8 +3,15 @@
 #include "Gui.h"
 #include "logic.h"
 
+void Gui::cb_body_i(Fl_Text_Editor*, void*) {
+  onChanged();
+}
+void Gui::cb_body(Fl_Text_Editor* o, void* v) {
+  ((Gui*)(o->parent()->user_data()))->cb_body_i(o,v);
+}
+
 void Gui::cb_regex_i(Fl_Input*, void*) {
-  onRegexChange();
+  onChanged();
 }
 void Gui::cb_regex(Fl_Input* o, void* v) {
   ((Gui*)(o->parent()->user_data()))->cb_regex_i(o,v);
@@ -14,6 +21,7 @@ Fl_Double_Window* Gui::make_window() {
   { w = new Fl_Double_Window(320, 104, "google/re2 lab");
     w->user_data((void*)(this));
     { body = new Fl_Text_Editor(4, 5, 312, 58);
+      body->callback((Fl_Callback*)cb_body);
     } // Fl_Text_Editor* body
     { regex = new Fl_Input(4, 68, 312, 28);
       regex->callback((Fl_Callback*)cb_regex);

@@ -14,10 +14,11 @@ class Gui {open
       xywh {820 583 320 104} type Double visible
     } {
       Fl_Text_Editor body {
+        callback {onChanged();} selected
         xywh {4 5 312 58}
       }
       Fl_Input regex {
-        callback {onRegexChange()}
+        callback {onChanged()}
         xywh {4 68 312 28}
       }
     }

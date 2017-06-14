@@ -12,6 +12,10 @@ public:
   Fl_Double_Window* make_window();
   Fl_Double_Window *w;
   Fl_Text_Editor *body;
+private:
+  inline void cb_body_i(Fl_Text_Editor*, void*);
+  static void cb_body(Fl_Text_Editor*, void*);
+public:
   Fl_Input *regex;
 private:
   inline void cb_regex_i(Fl_Input*, void*);

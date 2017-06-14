@@ -22,9 +22,9 @@ Fl_Text_Editor::Style_Table_Entry styletable[N_STYLES] = {
     { FL_RED,        FL_HELVETICA,         TEXT_SIZE } // B - Line commenTEXT_SIZE
 };
 
-void onRegexChange()
+void onChanged()
 {
-	//printf("%s()\n", __func__);
+	printf("%s()\n", __func__);
 
 	// reset highlight data
 	string tmp(bodyBuf->length(), 'A');
@@ -86,6 +86,7 @@ void onGuiInitialized(Gui *gui_)
 	styleBuf->text(tmp.c_str());
 
 	/* body input */
+	gui->body->when(gui->body->when() | FL_WHEN_CHANGED);
 	gui->body->textsize(TEXT_SIZE);
 	gui->body->wrap_mode(Fl_Text_Display::WRAP_AT_BOUNDS, 0);
 	gui->body->buffer(bodyBuf);
@@ -94,7 +95,7 @@ void onGuiInitialized(Gui *gui_)
 	/* regex input */
 	gui->regex->when(gui->regex->when() | FL_WHEN_CHANGED);
 	gui->regex->value("[0-9a-fA-F]{2,8}");
-	onRegexChange();
+	onChanged();
 
 }
 

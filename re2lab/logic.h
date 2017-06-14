@@ -3,4 +3,4 @@
 void onGuiInitialized(Gui *gui);
 void onGuiExit(int rc);
 
-void onRegexChange(void);
+void onChanged(void);
