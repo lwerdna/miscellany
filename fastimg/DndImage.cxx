@@ -29,35 +29,40 @@ DndImage::DndImage(int x, int y, int w, int h, const char *label):
     printf("DndImage constructor\n");
 }
 
+/* converts
+	FROM: the original raw image (imgBuf)
+      TO: the fltk drawable image (imgFl)
+   USING: libgd (imgGd) and the size and interpolation settings
+*/
 void DndImage::displayConversion(void)
 {
-	gdImagePtr gip = NULL;
+	gdImagePtr imgGd = NULL;
 	gdImageStruct *gdStruct;
-	uint8_t *imgBuf = NULL;
-	int imgBufLen;	
+	uint8_t *ptr = NULL;
+	int len;	
 	int oldWidth, oldHeight;
 	int newWidth, newHeight;
 
 	/* create the gd image */
 	switch(imageFileType) {
 		case IMG_FILE_TYPE_PNG:
-			gip = gdImageCreateFromPngPtr(imageFileBuf.size(), &imageFileBuf[0]);
+			imgGd = gdImageCreateFromPngPtr(imgBuf.size(), &imgBuf[0]);
 			break;
 		case IMG_FILE_TYPE_JPG:
-			gip = gdImageCreateFromJpegPtr(imageFileBuf.size(), &imageFileBuf[0]);
+			imgGd = gdImageCreateFromJpegPtr(imgBuf.size(), &imgBuf[0]);
 			break;
 		default:
 			printf("ERROR: unknown image file type\n");
 			goto cleanup;
 	}
 
-	if(!gip) {
+	if(!imgGd) {
 		printf("ERROR: creating gd image\n");
 		goto cleanup;
 	}
 
 	/* decide on resize dimensions */	
-	gdStruct = (gdImageStruct *)gip;
+	gdStruct = (gdImageStruct *)imgGd;
 
 	oldWidth = newWidth = gdStruct->sx;
 	oldHeight = newHeight = gdStruct->sy;
@@ -94,10 +99,10 @@ void DndImage::displayConversion(void)
 
 	/* actually do the resize, if needed */
 	if(newWidth != oldWidth || newHeight != oldHeight) {
-		gdImageSetInterpolationMethod(gip, GD_BICUBIC_FIXED);
-		gdImagePtr tmp = gdImageScale(gip, newWidth, newHeight);
-		gdImageDestroy(gip);
-		gip = tmp;
+		gdImageSetInterpolationMethod(imgGd, (gdInterpolationMethod)interpMethod);
+		gdImagePtr tmp = gdImageScale(imgGd, newWidth, newHeight);
+		gdImageDestroy(imgGd);
+		imgGd = tmp;
 	}
 
 	/* decide on display location */
@@ -112,19 +117,18 @@ void DndImage::displayConversion(void)
 		displayLocY = centerAreaH - centerPicH;
 	}
 
-
 	/* wrap that buffer in an FLTK image object */
-	if(myImage)
-		delete myImage;
+	if(imgFl)
+		delete imgFl;
 
 	switch(imageFileType) {
 		case IMG_FILE_TYPE_PNG:
-			imgBuf = (uint8_t *)gdImagePngPtr(gip, &imgBufLen);
-			myImage = new Fl_PNG_Image("whatever", imgBuf, imgBufLen);
+			ptr = (uint8_t *)gdImagePngPtr(imgGd, &len);
+			imgFl = new Fl_PNG_Image("whatever", ptr, len);
 			break;
 		case IMG_FILE_TYPE_JPG:
-			imgBuf = (uint8_t *)gdImageJpegPtr(gip, &imgBufLen, 100);
-			myImage = new Fl_JPEG_Image("whatever", imgBuf);
+			ptr = (uint8_t *)gdImageJpegPtr(imgGd, &len, 100 /* quality */);
+			imgFl = new Fl_JPEG_Image("whatever", ptr);
 			break;
 		default:
 			printf("ERROR: unknown image file type (%d)\n", imageFileType);
@@ -132,9 +136,17 @@ void DndImage::displayConversion(void)
 	}
 
 	cleanup:
-	if(gip) gdImageDestroy(gip);
-	if(imgBuf) gdFree(imgBuf);
+	if(imgGd) gdImageDestroy(imgGd);
+	if(ptr) gdFree(ptr);
 	while(0);
+}
+
+void DndImage::setInterpolation(int interp)
+{
+	printf("%s(%d)\n", __func__, interp);
+	interpMethod = interp;
+	displayConversion();
+	redraw();
 }
 
 void DndImage::draw(void)
@@ -156,11 +168,10 @@ void DndImage::draw(void)
 
 	fl_rectf(x_, y_, w_, h_, FL_GREEN);
 
-	if(!myImage) {
+	if(!imgFl)
 		goto cleanup;
-	}
 
-	myImage->draw(x_ + displayLocX, y_+displayLocY);
+	imgFl->draw(x_ + displayLocX, y_+displayLocY);
 
 	cleanup:
 	fl_pop_clip();
@@ -217,6 +228,24 @@ int DndImage::handle(int event)
     else return Fl_Widget::handle(event);
 }
 
+int DndImage::inferFileType(const char *fpath)
+{
+	int rc = -1;
+	int len = strlen(fpath);
+
+	/* check file type */
+	if(0 == strcasecmp(fpath + len - 4, ".jpg"))
+		rc = IMG_FILE_TYPE_JPG;
+	else if(0 == strcasecmp(fpath + len - 4, ".jpeg"))
+		rc = IMG_FILE_TYPE_JPG;
+	else if(0 == strcasecmp(fpath + len - 4, ".png"))
+		rc = IMG_FILE_TYPE_PNG;
+	else
+		printf("ERROR: unrecognized file type: %s\n", fpath);
+
+	return rc;
+}
+
 int DndImage::loadImage(const char *fpath)
 {
 	printf("%s(%s)\n", __func__, fpath);
@@ -227,23 +256,9 @@ int DndImage::loadImage(const char *fpath)
 	string errStr;
 
 	/* check file type */
-	int ftype;
-	if(0 == strcasecmp(fpath + len - 4, ".jpg")) {
-		printf("new jpg image!\n");
-		ftype = IMG_FILE_TYPE_JPG;
-	}
-	else if(0 == strcasecmp(fpath + len - 4, ".jpeg")) {
-		printf("new jpeg image!\n");
-		ftype = IMG_FILE_TYPE_JPG;
-	}
-	else if(0 == strcasecmp(fpath + len - 4, ".png")) {
-		printf("new png image!\n");
-		ftype = IMG_FILE_TYPE_PNG;
-	}
-	else {
-		printf("ERROR: unrecognized file type: %s\n", fpath);
-		goto cleanup;
-	}
+	int ftype = inferFileType(fpath);
+	if(ftype < 0)
+		{ printf("ERROR: inferFileType()\n"); goto cleanup; }
 
 	if(filesys_read(fpath, "rb", fbuf, errStr)) {
 		printf("ERROR: %s\n", errStr.c_str());
@@ -252,7 +267,7 @@ int DndImage::loadImage(const char *fpath)
 
 	/* set globals */
 	imageFileType = ftype;
-	imageFileBuf = fbuf;
+	imgBuf = fbuf;
 	imageFilePath = fpath;
 	
 	/* draw it */	
@@ -281,68 +296,79 @@ void DndImage::resize(int x, int y, int w, int h)
 void DndImage::setDisplayOpts(int opts)
 {
 	bool recalc = (displayOpts != opts);
-
 	displayOpts = opts;
-
 	if(recalc) displayConversion();
 }
 
+/* gets the image dimensions
+	by temporarily loading the raw image (imgBuf) into libgd (imgGd) */
 int DndImage::getImageDims(int *width, int *height)
 {
 	int rc = -1;
 	
-	gdImagePtr gip = NULL;
+	gdImagePtr imgGd = NULL;
 	gdImageStruct *gdStruct;
 
-	if(imageFileBuf.size() == 0)
+	if(imgBuf.size() == 0)
 		goto cleanup;
 
 	/* create the gd image */
 	switch(imageFileType) {
 		case IMG_FILE_TYPE_PNG:
-			gip = gdImageCreateFromPngPtr(imageFileBuf.size(), &imageFileBuf[0]);
+			imgGd = gdImageCreateFromPngPtr(imgBuf.size(), &imgBuf[0]);
 			break;
 		case IMG_FILE_TYPE_JPG:
-			gip = gdImageCreateFromJpegPtr(imageFileBuf.size(), &imageFileBuf[0]);
+			imgGd = gdImageCreateFromJpegPtr(imgBuf.size(), &imgBuf[0]);
 			break;
 		default:
 			printf("ERROR: unknown image file type (%d)\n", imageFileType);
 			goto cleanup;
 	}
 
-	if(!gip) {
+	if(!imgGd) {
 		printf("ERROR: creating gd image\n");
 		goto cleanup;
 	}
 
-	gdStruct = (gdImageStruct *)gip;
+	gdStruct = (gdImageStruct *)imgGd;
 	*width = gdStruct->sx;
 	*height = gdStruct->sy;
 
 	rc = 0;
 	cleanup:
+	if(imgGd) gdImageDestroy(imgGd);
 	return rc;
 }
 
-int DndImage::writePng(char *filePath)
+/* write to a file, but calling draw() on a temporary surface */
+int DndImage::writeFile(const char *fpath)
 {
 	int rc = -1;
-	Fl_Surface_Device *surfTmp = NULL;
 	Fl_RGB_Image *imageRGB = NULL;
-	gdImagePtr im = NULL;
+	gdImagePtr imgGd = NULL;
+	int ftype;
 	FILE *fp = NULL;
 	uint8_t *rgb;
 	int w_ = w();
 	int h_ = h();
+	int oldX, oldY;
+
+	Fl_Surface_Device *surfTmp = NULL;
+	Fl_Image_Surface *surfImg = NULL;
+
+	/* check extension */
+	ftype = inferFileType(fpath);
+	if(ftype < 0)
+		{ printf("ERROR: inferFileType()\n"); goto cleanup; }
 
 	/* create a temporary fake surface, swapping it in */
-	Fl_Image_Surface surfImg(w_, h_);
+	surfImg = new Fl_Image_Surface(w_, h_);
 	surfTmp = Fl_Surface_Device::surface();
-	surfImg.set_current();
-	
+	surfImg->set_current();
+
 	/* draw on the fake surface */
-	int oldX = x();
-	int oldY = y();
+	oldX = x();
+	oldY = y();
 	x(0);
 	y(0);	
 	draw();
@@ -353,7 +379,7 @@ int DndImage::writePng(char *filePath)
 	surfTmp->set_current();
 
 	/* access RGB data by converting to an Fl_RGB_Image */
-	imageRGB = surfImg.image();
+	imageRGB = surfImg->image();
 
 	if(imageRGB->count() != 1) {
 		printf("ERROR: expected data count == 1\n");
@@ -373,18 +399,21 @@ int DndImage::writePng(char *filePath)
 	rgb = (uint8_t *) imageRGB->data()[0];
 
 	/* create a gd image */
-	im = gdImageCreateTrueColor(w_, h_);
+	imgGd = gdImageCreateTrueColor(w_, h_);
 	for(int x=0; x<w_; ++x) {
 		for(int y=0; y<h_; ++y) {
 			int pixIdx = 3*(w_*y + x);
 			uint32_t color = (rgb[pixIdx+0] << 16) | (rgb[pixIdx+1] << 8) | rgb[pixIdx+2];
-			gdImageSetPixel(im, x, y, color);
+			gdImageSetPixel(imgGd, x, y, color);
 		}
 	}
 
 	/* write gd image to file */
-	fp = fopen(filePath, "wb");
-	gdImagePng(im, fp);
+	fp = fopen(fpath, "wb");
+	if(ftype == IMG_FILE_TYPE_PNG)
+		gdImagePng(imgGd, fp);
+	else if(ftype == IMG_FILE_TYPE_JPG)
+		gdImageJpeg(imgGd, fp, 100);
 	fclose(fp);
 
 	/* done */
@@ -392,8 +421,10 @@ int DndImage::writePng(char *filePath)
 	cleanup:
 	//if(imageRGB) 
 	//	Fl_Shared_Image::release();
-	if(im)
-		gdImageDestroy(im);
+	if(surfImg)
+		delete surfImg;
+	if(imgGd)
+		gdImageDestroy(imgGd);
 	return rc;
 }
 	

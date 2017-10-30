@@ -179,7 +179,7 @@ Fl_Double_Window* Gui::make_window() {
         { Fl_Button* o = new Fl_Button(185, 47, 107, 20, "320x180 16:9");
           o->callback((Fl_Callback*)cb_320x180);
         } // Fl_Button* o
-        { resizeImg = new DndImage(6, 88, 1024, 808);
+        { resizeImg = new DndImage(6, 102, 1028, 794);
           resizeImg->box(FL_NO_BOX);
           resizeImg->color(FL_BACKGROUND_COLOR);
           resizeImg->selection_color(FL_BACKGROUND_COLOR);
@@ -190,10 +190,13 @@ Fl_Double_Window* Gui::make_window() {
           resizeImg->align(Fl_Align(FL_ALIGN_CENTER));
           resizeImg->when(FL_WHEN_RELEASE);
         } // DndImage* resizeImg
-        { fpathOut = new Fl_Output(635, 47, 406, 24, "output:");
-        } // Fl_Output* fpathOut
         { fpathIn = new Fl_Output(635, 22, 406, 22, "input:");
         } // Fl_Output* fpathIn
+        { interpMethods = new Fl_Choice(392, 56, 164, 22, "Interpolation:");
+          interpMethods->down_box(FL_BORDER_BOX);
+        } // Fl_Choice* interpMethods
+        { fpathOut = new Fl_Input(636, 46, 405, 24, "output:");
+        } // Fl_Input* fpathOut
         tabResize->end();
       } // Fl_Group* tabResize
       { Fl_Group* o = new Fl_Group(0, 20, 1024, 800, "2x2");

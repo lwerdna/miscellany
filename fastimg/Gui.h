@@ -11,6 +11,8 @@
 #include <FL/Fl_Button.H>
 #include <FL/Fl_Round_Button.H>
 #include <FL/Fl_Output.H>
+#include <FL/Fl_Choice.H>
+#include <FL/Fl_Input.H>
 
 class Gui {
 public:
@@ -77,8 +79,9 @@ private:
   static void cb_320x180(Fl_Button*, void*);
 public:
   DndImage *resizeImg;
-  Fl_Output *fpathOut;
   Fl_Output *fpathIn;
+  Fl_Choice *interpMethods;
+  Fl_Input *fpathOut;
 };
 int main(int ac, char **av);
 #endif

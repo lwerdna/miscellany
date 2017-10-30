@@ -36,13 +36,20 @@ class DndImage : public Fl_Widget
     public:
 	/* info on the currently open file */
 	string imageFilePath;
-	vector<uint8_t> imageFileBuf;
 	int imageFileType = IMG_FILE_TYPE_INVALID;
+	int interpMethod = 0; // GD_DEFAULT
 
 	int displayLocX=0, displayLocY=0;
 	imageCallback callback = NULL;
 
-	Fl_Image *myImage = NULL;
+	/* three forms the image is in:
+		imgBuf: raw bytes
+		 imgFl: fltk's version for display
+		 imgGd: temporary, for resizing
+	*/
+	vector<uint8_t> imgBuf;
+	Fl_Image *imgFl = NULL;
+
 	bool dndEnabled = true;
 	//int displayOpts = DISPLAY_OPT_TOP_LEFT;
 	int displayOpts = DISPLAY_OPT_MATCH_WIDTH | DISPLAY_OPT_MATCH_HEIGHT;
@@ -57,6 +64,7 @@ class DndImage : public Fl_Widget
 
 	/* internal crap */
 	void displayConversion(void);
+	int inferFileType(const char *fpath);
 	
 	/* API */
 	void setDisplayOpts(int opts);
@@ -65,6 +73,6 @@ class DndImage : public Fl_Widget
 	string getImagePath(void);
 	int getImageDims(int *width, int *height);
 	int loadImage(const char *filePath);
-	int writePng(char *filePath);
+	int writeFile(const char *filePath);
 	void setCallback(imageCallback cb);
 };

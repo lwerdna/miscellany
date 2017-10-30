@@ -14,7 +14,7 @@ class Gui {open
   } {
     Fl_Window {} {
       label fastimg open
-      xywh {598 224 1044 908} type Double visible
+      xywh {732 218 1044 908} type Double visible
     } {
       Fl_Tabs tabs {open
         xywh {-4 0 1061 896}
@@ -107,16 +107,20 @@ class Gui {open
             xywh {185 47 107 20}
           }
           Fl_Box resizeImg {
-            xywh {6 88 1024 808}
+            xywh {6 102 1028 794}
             class DndImage
-          }
-          Fl_Output fpathOut {
-            label {output:}
-            xywh {635 47 406 24}
           }
           Fl_Output fpathIn {
             label {input:}
             xywh {635 22 406 22}
+          }
+          Fl_Choice interpMethods {
+            label {Interpolation:} open
+            xywh {392 56 164 22} down_box BORDER_BOX
+          } {}
+          Fl_Input fpathOut {
+            label {output:} selected
+            xywh {636 46 405 24}
           }
         }
         Fl_Group {} {
@@ -141,6 +145,5 @@ w->end();
 w->show();
 int rc = Fl::run();
 onGuiExit(rc);
-return rc;} {selected
-  }
+return rc;} {}
 }

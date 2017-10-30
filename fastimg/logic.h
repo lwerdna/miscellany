@@ -8,6 +8,7 @@ void setAbsoluteResolution(int w, int h);
 void onSetOriginalDims();
 
 void cbDndImage(int reason);
+void cbInterp(Fl_Menu_Item *menuItem, void *userData);
 
 void onBtnCenter();
 void onBtnCorner();
