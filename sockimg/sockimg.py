@@ -34,7 +34,9 @@ while 1:
 		print "received %d bytes %s...%s" % (len(data), binascii.hexlify(data[0:16]), binascii.hexlify(data[-16:]))
 
 		if label:
+			label.image = None
 			label.destroy()
+			label = None
 	
 		try:	
 			image = Image.open(io.BytesIO(data))
