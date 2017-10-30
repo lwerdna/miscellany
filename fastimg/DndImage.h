@@ -64,6 +64,7 @@ class DndImage : public Fl_Widget
 	void setDndEnabled(bool enab);
 	string getImagePath(void);
 	int getImageDims(int *width, int *height);
+	int loadImage(const char *filePath);
 	int writePng(char *filePath);
 	void setCallback(imageCallback cb);
 };

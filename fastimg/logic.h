@@ -1,4 +1,4 @@
-void onGuiInit(Gui *gui);
+void onGuiInit(Gui *gui, int ac, char **av);
 void onGuiExit(int retFromFlRun);
 
 void onResizeWidthChange(int width);

@@ -14,7 +14,7 @@ class Gui {open
   } {
     Fl_Window {} {
       label fastimg open
-      xywh {118 253 1044 908} type Double visible
+      xywh {598 224 1044 908} type Double visible
     } {
       Fl_Tabs tabs {open
         xywh {-4 0 1061 896}
@@ -106,7 +106,7 @@ class Gui {open
             callback {setAbsoluteResolution(320,180);}
             xywh {185 47 107 20}
           }
-          Fl_Box resizeImg {selected
+          Fl_Box resizeImg {
             xywh {6 88 1024 808}
             class DndImage
           }
@@ -136,10 +136,11 @@ Function {main(int ac, char **av)} {open return_type int
 } {
   code {Gui gui;
 Fl_Double_Window *w = gui.make_window();
-onGuiInit(&gui);
+onGuiInit(&gui, ac, av);
 w->end();
 w->show();
 int rc = Fl::run();
 onGuiExit(rc);
-return rc;} {}
+return rc;} {selected
+  }
 }

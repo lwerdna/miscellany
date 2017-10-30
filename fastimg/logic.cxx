@@ -20,13 +20,16 @@ void cbDndImage(int reason)
 	}
 }
 
-void onGuiInit(Gui *gui_)
+void onGuiInit(Gui *gui_, int ac, char **av)
 {
 	gui = gui_;
 	printf("%s()\n", __func__);
 	gui->fpathIn->value("");
 	gui->fpathOut->value("");
 	gui->resizeImg->setCallback(cbDndImage);
+
+	if(ac > 1)
+		gui->resizeImg->loadImage(av[1]);
 }
 
 void onGuiExit(int retFromFlRun)

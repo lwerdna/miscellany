@@ -214,7 +214,7 @@ Fl_Double_Window* Gui::make_window() {
 int main(int ac, char **av) {
   Gui gui;
   Fl_Double_Window *w = gui.make_window();
-  onGuiInit(&gui);
+  onGuiInit(&gui, ac, av);
   w->end();
   w->show();
   int rc = Fl::run();

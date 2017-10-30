@@ -43,6 +43,9 @@ void DndImage::displayConversion(void)
 		case IMG_FILE_TYPE_PNG:
 			gip = gdImageCreateFromPngPtr(imageFileBuf.size(), &imageFileBuf[0]);
 			break;
+		case IMG_FILE_TYPE_JPG:
+			gip = gdImageCreateFromJpegPtr(imageFileBuf.size(), &imageFileBuf[0]);
+			break;
 		default:
 			printf("ERROR: unknown image file type\n");
 			goto cleanup;
@@ -109,8 +112,6 @@ void DndImage::displayConversion(void)
 		displayLocY = centerAreaH - centerPicH;
 	}
 
-	/* allocate a buffer that has the image data */
-	imgBuf = (uint8_t *)gdImagePngPtr(gip, &imgBufLen);
 
 	/* wrap that buffer in an FLTK image object */
 	if(myImage)
@@ -118,10 +119,15 @@ void DndImage::displayConversion(void)
 
 	switch(imageFileType) {
 		case IMG_FILE_TYPE_PNG:
+			imgBuf = (uint8_t *)gdImagePngPtr(gip, &imgBufLen);
 			myImage = new Fl_PNG_Image("whatever", imgBuf, imgBufLen);
 			break;
+		case IMG_FILE_TYPE_JPG:
+			imgBuf = (uint8_t *)gdImageJpegPtr(gip, &imgBufLen, 100);
+			myImage = new Fl_JPEG_Image("whatever", imgBuf);
+			break;
 		default:
-			printf("ERROR: unknown image file type\n");
+			printf("ERROR: unknown image file type (%d)\n", imageFileType);
 			goto cleanup;
 	}
 
@@ -185,43 +191,7 @@ int DndImage::handle(int event)
 
 			/* parse file name */
 			const char *fpath = Fl::event_text();
-			int len = strlen(fpath);
-			int newimageFileType;
-	
-			if(0 == strcasecmp(fpath + len - 4, ".jpg")) {
-				printf("new jpg image!\n");
-				newimageFileType = IMG_FILE_TYPE_JPG;
-			}
-			else if(0 == strcasecmp(fpath + len - 4, ".jpeg")) {
-				printf("new jpeg image!\n");
-				newimageFileType = IMG_FILE_TYPE_JPG;
-			}
-			else if(0 == strcasecmp(fpath + len - 4, ".png")) {
-				printf("new png image!\n");
-				newimageFileType = IMG_FILE_TYPE_PNG;
-			}
-			else {
-				printf("ERROR: unrecognized file type: %s\n", fpath);
-				break;
-			}
-	
-			string errStr;
-			vector<uint8_t> newImageFileBuf;
-			if(filesys_read(fpath, "rb", newImageFileBuf, errStr)) {
-				printf("ERROR: %s\n", errStr.c_str());
-				break;
-			}
-
-			/* k, success, made it here */
-			imageFileType = newimageFileType;
-			imageFileBuf = newImageFileBuf;
-			imageFilePath = fpath;
-				
-			displayConversion();	
-			redraw();
-	
-			if(callback)
-				callback(CB_REASON_FILE_OPENED);
+			loadImage(fpath);
 
             //printf("event length: %d\n", Fl::event_length());
 
@@ -245,6 +215,57 @@ int DndImage::handle(int event)
 
     if(rc) return rc;
     else return Fl_Widget::handle(event);
+}
+
+int DndImage::loadImage(const char *fpath)
+{
+	printf("%s(%s)\n", __func__, fpath);
+
+	int rc = -1;
+	int len = strlen(fpath);
+	vector<uint8_t> fbuf;
+	string errStr;
+
+	/* check file type */
+	int ftype;
+	if(0 == strcasecmp(fpath + len - 4, ".jpg")) {
+		printf("new jpg image!\n");
+		ftype = IMG_FILE_TYPE_JPG;
+	}
+	else if(0 == strcasecmp(fpath + len - 4, ".jpeg")) {
+		printf("new jpeg image!\n");
+		ftype = IMG_FILE_TYPE_JPG;
+	}
+	else if(0 == strcasecmp(fpath + len - 4, ".png")) {
+		printf("new png image!\n");
+		ftype = IMG_FILE_TYPE_PNG;
+	}
+	else {
+		printf("ERROR: unrecognized file type: %s\n", fpath);
+		goto cleanup;
+	}
+
+	if(filesys_read(fpath, "rb", fbuf, errStr)) {
+		printf("ERROR: %s\n", errStr.c_str());
+		goto cleanup;
+	}
+
+	/* set globals */
+	imageFileType = ftype;
+	imageFileBuf = fbuf;
+	imageFilePath = fpath;
+	
+	/* draw it */	
+	displayConversion();	
+	redraw();
+
+	/* if callback registered, call it */
+	if(callback)
+		callback(CB_REASON_FILE_OPENED);
+
+	rc = 0;
+	cleanup:
+	return rc;
 }
 
 void DndImage::resize(int x, int y, int w, int h)
@@ -281,8 +302,11 @@ int DndImage::getImageDims(int *width, int *height)
 		case IMG_FILE_TYPE_PNG:
 			gip = gdImageCreateFromPngPtr(imageFileBuf.size(), &imageFileBuf[0]);
 			break;
+		case IMG_FILE_TYPE_JPG:
+			gip = gdImageCreateFromJpegPtr(imageFileBuf.size(), &imageFileBuf[0]);
+			break;
 		default:
-			printf("ERROR: unknown image file type\n");
+			printf("ERROR: unknown image file type (%d)\n", imageFileType);
 			goto cleanup;
 	}
 
