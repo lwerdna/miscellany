@@ -7,13 +7,13 @@ import subprocess
 from time import localtime, mktime, struct_time
 
 def runGetOutput(cmdAndArgs, verbose=False):
-	if verbose:
-		print cmdAndArgs
+    if verbose:
+    	print cmdAndArgs
 
-	pipe = subprocess.Popen(cmdAndArgs, stdout=subprocess.PIPE, shell=True);
-	text = pipe.communicate()[0]
+    pipe = subprocess.Popen(cmdAndArgs, stdout=subprocess.PIPE, shell=True);
+    text = pipe.communicate()[0]
 
-	return text
+    return text
 
 action = '-1'
 if len(sys.argv)>1:
@@ -45,7 +45,7 @@ for cmd in cmds:
         # calculate time of the file!
         #
         print "splitting line: -%s-" % l
-		# -rw-rw---- 1 root sdcard_rw  2674934 2015-08-27 07:03 /sdcard/DCIM/Camera/IMG_20150827_070354.jpg
+    	# -rw-rw---- 1 root sdcard_rw  2674934 2015-08-27 07:03 /sdcard/DCIM/Camera/IMG_20150827_070354.jpg
         m = re.match('^(.*?)\s+(.*?)\s+(.*?)\s+(.*?)\s+(.*?)\s+(.*?)\s+(.*?)\s+(.*?)$', l)
         if not m:
             continue
@@ -89,11 +89,13 @@ for cmd in cmds:
         output = runGetOutput(cmd, True)
         print output
 
-        if re.match(r'^.*?\.jpg$', fpath):
-            #cmd = 'mogrify -strip -resize 512x384 %s' % fpath
-            #cmd = 'mogrify -strip -resize 1024x768 %s' % fpath
-            cmd = 'mogrify -strip -resize 2048x1536 %s' % fpath
-            #cmd = 'mogrify -strip %s' % fpath
+        m = re.match(r'^.*/(.*\.jpg)$', fpath)
+        if m:
+            fname = m.group(1)
+            #cmd = 'mogrify -strip -resize 512x384 %s' % fname
+            #cmd = 'mogrify -strip -resize 1024x768 %s' % fname
+            cmd = 'mogrify -strip -resize 2048x1536 %s' % fname
+            #cmd = 'mogrify -strip %s' % fname
             output = runGetOutput(cmd, True)
             print output
 
