@@ -22,7 +22,7 @@ def xtea_encrypt_block(v, key, num_rounds=32):
 	sum=0
 	delta=0x9E3779B9
 
-	[v0,v1] = unpack('>II', v) 
+	[v0,v1] = unpack('>II', v)
 	subkeys = unpack('>IIII', key)
 
 	for i in range(num_rounds):
@@ -47,73 +47,82 @@ def xtea_encrypt_ofb(plaintext, key, iv="\x41\x42\x43\x44\x45\x46\x47\x48"):
 	for i in range(length):
 		ciphertext += pack('B', ord(plaintext[i]) ^ stream[i])
 
-	return ciphertext 
+	return ciphertext
 
-if __name__ == '__main__':
-	if len(sys.argv) <= 1:
-		raise Exception("supply a file to decrypt")
-
-	fpath = sys.argv[1]
-	
-	# ask password
-	pw = getpass.getpass()
-	m = hashlib.sha1(pw)
-	digest = m.digest()
-	
-	#print "sha1(password) = %s" % repr(digest)
-	key = digest[0:16]
-	#key = "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f"
-	#print "key = %s" % repr(key)
-	
+def doFile(fpath, key):
 	# open file contents
 	fp = open(fpath, 'r')
 	body = fp.read()
 	fp.close()
-	
+
 	# b64 decode, decrypt, if this is not a new file
 	if len(body) > 0:
 		if G_DO_BASE64:
 			body = base64.b64decode(body)
-	
+
 		body = xtea_encrypt_ofb(body, key)
 		#print "new body: %s" % body
-	
+
 	# make temporary file
 	(tmp_handle, tmp_name) = tempfile.mkstemp(suffix=os.path.splitext(fpath)[1])
 	print "writing temporary contents to %s" % tmp_name
 	tmp_obj = os.fdopen(tmp_handle, 'w')
 	tmp_obj.write(body)
 	tmp_obj.close()
-	
+
 	# edit
 	print "invoking gvim and waiting... (gvim %s)" % tmp_name
 	subprocess.call(["vim", '-f', tmp_name])
-	
+
 	# now open, encode, encrypt
 	print "reading changes from %s" % tmp_name
 	fp = open(tmp_name)
 	body = fp.read()
 	fp.close()
-	
+
 	print "encrypting, encoding"
 	if len(body) > 0:
 		body = xtea_encrypt_ofb(body, key)
-	
+
 		if G_DO_BASE64:
 			body = base64.b64encode(body)
-	
+
 	print "propogating changes to %s" % fpath
 	fp = open(fpath, 'w')
 	fp.write(body)
 	fp.close()
-	
+
 	# delete old file
 	print "wiping %s" % tmp_name
 	if platform.system() == 'Darwin':
 		subprocess.call(['rm', '-P', tmp_name])
 	else:
 		subprocess.call(["shred", '-n', '200', '-z', '-u', tmp_name])
-	
+
 	# done!
 	print "done!"
+
+def doString(string, key):
+	string = base64.b64decode(string)
+	string = xtea_encrypt_ofb(string, key)
+	print string
+
+if __name__ == '__main__':
+	if len(sys.argv) <= 1:
+		raise Exception("supply a file or string to decrypt")
+
+	fpath_or_str = sys.argv[1]
+
+	# ask password, derive key
+	pw = getpass.getpass()
+	m = hashlib.sha1(pw)
+	digest = m.digest()
+	key = digest[0:16]
+
+	# open file or decrypt string
+	if os.path.isfile(fpath_or_str):
+		doFile(fpath_or_str, key)
+	else:
+		doString(fpath_or_str, key)
+
 
