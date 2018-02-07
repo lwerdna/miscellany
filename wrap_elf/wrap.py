@@ -15,6 +15,7 @@
 # .shstrtab section header
 # ------------------------
 
+import os
 import argparse
 from struct import pack
 
@@ -22,27 +23,7 @@ from struct import pack
 (PF_X, PF_W, PF_R) = (1,2,4)
 (SHT_NULL, SHT_PROGBITS, SHT_STRTAB) = (0,1,3)
 (ET_EXEC) = (2)
-
-parser = argparse.ArgumentParser(description='Wrap a flat binary file in an ELF.')
-parser.add_argument('fpath', type=str, help='the flat file to wrap within the ELF')
-parser.add_argument('ei_class', type=int, help='0=none, 1=32bit, 2=64bit')
-parser.add_argument('ei_data', type=int, help='0=none, 1=L-end, 2=B-end')
-# EM_M32, EM_386, etc. from elf-em.h
-parser.add_argument('e_machine', type=int, help='3=x32, 40=arm, 62=x64, 183=aarch64')
-parser.add_argument('address', type=int, help='address where image loads')
-parser.add_argument('entrypoint', type=int, help='address of first instruction')
-parser.add_argument('outfile', type=str, help='the output file')
-args = parser.parse_args()
-
-# default little-endian pack() formats
-(fmt_u16, fmt_u32, fmt_u64) = ('<H', '<I', '<Q')
-if args.ei_data == 2:
-	(fmt_u16, fmt_u32, fmt_u64) = ('>H', '>I', '>Q')
-fmt_ptr = [fmt_u32, fmt_u32, fmt_u64][args.ei_class]
-bits = [32,32,64][args.ei_class]
-sz_ehdr = [0x34, 0x34, 0x40][args.ei_class]
-sz_phdr = [0x20, 0x20, 0x38][args.ei_class]
-sz_shdr = [0x28, 0x28, 0x40][args.ei_class]
+(PT_LOAD) = (1)
 
 def build_elf_hdr(class_, data, type_, machine, version, entry, phoff, \
   shoff, flags, ehsize, phentsize, phnum, shentsize, shnum, shstrndx):
@@ -94,16 +75,36 @@ def build_scn_hdr(name, type_, flags, addr, offset, size, link, info, \
 	hdr += pack(fmt_u32, name)			# sh_name
 	hdr += pack(fmt_u32, type_)			# sh_type = SHT_PROGBITS
 	hdr += pack(fmt_ptr, flags)			# sh_flags = SHF_ALLOC|SHF_EXECINSTR
-	hdr += pack(fmt_u32, addr)			# sh_addr
-	hdr += pack(fmt_u32, offset)		# sh_offset
-	hdr += pack(fmt_u32, size)			# sh_size
+	hdr += pack(fmt_ptr, addr)			# sh_addr
+	hdr += pack(fmt_ptr, offset)		# sh_offset
+	hdr += pack(fmt_ptr, size)			# sh_size
 	hdr += pack(fmt_u32, link)			# sh_link
 	hdr += pack(fmt_u32, info)			# sh_info
-	hdr += pack(fmt_u32, addralign)		# sh_addralign
-	hdr += pack(fmt_u32, entsize)		# sh_entsize
+	hdr += pack(fmt_ptr, addralign)		# sh_addralign
+	hdr += pack(fmt_ptr, entsize)		# sh_entsize
 	assert len(hdr) == sz_shdr
 	return hdr
 
+parser = argparse.ArgumentParser(description='Wrap a flat binary file in an ELF.')
+parser.add_argument('fpath', type=str, help='the flat file to wrap within the ELF')
+parser.add_argument('ei_class', type=int, help='0=none, 1=32bit, 2=64bit')
+parser.add_argument('ei_data', type=int, help='0=none, 1=L-end, 2=B-end')
+# EM_M32, EM_386, etc. from elf-em.h
+parser.add_argument('e_machine', type=int, help='3=x32, 40=arm, 62=x64, 183=aarch64')
+parser.add_argument('address', type=str, help='address where image loads')
+parser.add_argument('entrypoint', type=str, help='address of first instruction')
+parser.add_argument('outfile', type=str, help='the output file')
+args = parser.parse_args()
+
+# default little-endian pack() formats
+(fmt_u16, fmt_u32, fmt_u64) = ('<H', '<I', '<Q')
+if args.ei_data == 2:
+	(fmt_u16, fmt_u32, fmt_u64) = ('>H', '>I', '>Q')
+fmt_ptr = [fmt_u32, fmt_u32, fmt_u64][args.ei_class]
+bits = [32,32,64][args.ei_class]
+sz_ehdr = [0x34, 0x34, 0x40][args.ei_class]
+sz_phdr = [0x20, 0x20, 0x38][args.ei_class]
+sz_shdr = [0x28, 0x28, 0x40][args.ei_class]
 # .text section from input file
 fp = open(args.fpath, 'rb')
 scn_text = fp.read()
@@ -123,9 +124,14 @@ phdr = build_phdr(0,0,0,0,0,0,0,0)
 o_phdr = fp.tell()
 fp.write(phdr)
 
+# filler? we need phdr.p_vaddr = phdr.p_offset (mod phdr.p_align)
+assert fp.tell() < 0x1000
+assert (int(args.address, 16) % 0x1000) == 0
+fp.write('\x00' * (0x1000 - fp.tell()))
+
 # text section
 o_text = fp.tell()
-fp.write(text)
+fp.write(scn_text)
 
 # shstrtab section
 o_shstrtab = fp.tell()
@@ -137,24 +143,36 @@ o_shdr_null = fp.tell()
 fp.write(shdr_null)
 
 # text section header
-shdr_text = build_scn_hdr(1, SHT_PROGBITS, 6, args.address, \
-  o_text, len(text), 0, 0x1000, 0)
+shdr_text = build_scn_hdr(1, SHT_PROGBITS, 6, int(args.address, 16), \
+  o_text, len(scn_text), 0, 0, 0, 0)
 o_shdr_text = fp.tell()
 fp.write(shdr_text)
 
 # shstrtab section headerc
 shdr_strs = build_scn_hdr(7, SHT_STRTAB, 0, 0, o_shstrtab, \
-  len(scn_shstrtab))
+  len(scn_shstrtab), 0, 0, 1, 0)
 o_shdr_strs = fp.tell()
 fp.write(shdr_strs)
 
 # seek back, write real elf header
-ehdr = build_elf_hdr(args.ei_class, args.ei_data, ET_EXEC, args.machine, 1, \
-  args.entry, o_phdr, o_shdr_text, 0, sz_ehdr, sz_phdr, 1, sz_shdr, 3, 2):
-fp.seek(o_ehdr, SEEK_SET)
+ehdr = build_elf_hdr(args.ei_class, args.ei_data, ET_EXEC, args.e_machine, 
+  1, # version
+  int(args.entrypoint, 16), o_phdr,
+  o_shdr_null, # offset of first scn hdr
+  0, # flags
+  sz_ehdr, sz_phdr,
+  1, # number of program headers
+  sz_shdr,
+  3, # number of sections
+  2 # index of shstrndx
+)
+fp.seek(o_ehdr, os.SEEK_SET)
 fp.write(ehdr)
 
-phdr = build_phdr(PT_LOAD, PF_X|PF_R, o_text, args.addr, 0, len(text), len(text), 0x4000)
+phdr = build_phdr(PT_LOAD, PF_X|PF_R, o_text, int(args.address, 16), 0, len(scn_text), \
+  len(scn_text), 0x1000)
+fp.seek(o_phdr, os.SEEK_SET)
+fp.write(phdr)
 
 # done!
 fp.close()
