@@ -18,9 +18,10 @@
 import argparse
 from struct import pack
 
-SHT_NULL = 0
-SHT_PROGBITS = 1
-SHT_STRTAB = 3
+# some elf defines
+(PF_X, PF_W, PF_R) = (1,2,4)
+(SHT_NULL, SHT_PROGBITS, SHT_STRTAB) = (0,1,3)
+(ET_EXEC) = (2)
 
 parser = argparse.ArgumentParser(description='Wrap a flat binary file in an ELF.')
 parser.add_argument('fpath', type=str, help='the flat file to wrap within the ELF')
@@ -33,91 +34,129 @@ parser.add_argument('entrypoint', type=int, help='address of first instruction')
 parser.add_argument('outfile', type=str, help='the output file')
 args = parser.parse_args()
 
-print 'fpath: %s' % args.fpath
-print 'number: %d' % args.number
-#print 'machine is: %d' % args.machine
-
 # default little-endian pack() formats
 (fmt_u16, fmt_u32, fmt_u64) = ('<H', '<I', '<Q')
 if args.ei_data == 2:
 	(fmt_u16, fmt_u32, fmt_u64) = ('>H', '>I', '>Q')
 fmt_ptr = [fmt_u32, fmt_u32, fmt_u64][args.ei_class]
 bits = [32,32,64][args.ei_class]
-sz_elfhdr = [0x34, 0x34, 0x40][args.ei_class]
+sz_ehdr = [0x34, 0x34, 0x40][args.ei_class]
 sz_phdr = [0x20, 0x20, 0x38][args.ei_class]
-sz_scnhdr = [0x28, 0x28, 0x40][args.ei_class]
+sz_shdr = [0x28, 0x28, 0x40][args.ei_class]
 
 def build_elf_hdr(class_, data, type_, machine, version, entry, phoff, \
   shoff, flags, ehsize, phentsize, phnum, shentsize, shnum, shstrndx):
-	# build elf header
-	elf_hdr = '\x7FELF'
-	elf_hdr += chr(args.ei_class) # e_ident[EI_CLASS]
-	elf_hdr += chr(args.ei_data) # e_ident[EI_DATA]
-	elf_hdr += '\x01\x00\x00' # version, osabi, abiversion
-	elf_hdr += '\x00'*7
-	assert len(elf_hdr) == 16
-	elf_hdr += pack(fmt_u16, 2) 			# e_type = ET_EXEC
-	elf_hdr += pack(fmt_u16, args.e_machine) # e_machine
-	elf_hdr += pack(fmt_u32, 1) 			# e_version = EV_CURRENT
-	elf_hdr += pack(fmt_ptr, 0) 			# e_entry
-	elf_hdr += pack(fmt_ptr, sz_elfhdr) 	# e_phoff
-	elf_hdr += pack(fmt_ptr, TODO) 			# e_shoff
-	elf_hdr += pack(fmt_u32, e_flags) 		# e_flags
-	elf_hdr += pack(fmt_u16, e_ehsize) 		# e_ehsize
-	elf_hdr += pack(fmt_u16, sz_phdr) 		# e_phentsize
-	elf_hdr += pack(fmt_u16, 1) 			# e_phnum
-	elf_hdr += pack(fmt_u16, sz_scnhdr) 	# e_shentsize
-	elf_hdr += pack(fmt_u16, 1) 			# e_shnum
-	elf_hdr += pack(fmt_u16, 0) 			# e_shstrndx
-	assert len(elf_hdr) == sz_elfhdr
+	global fmt_16, fmt_u32, fmt_ptr, sz_ehdr
+	hdr = '\x7FELF'
+	hdr += chr(class_) # e_ident[EI_CLASS]
+	hdr += chr(data) # e_ident[EI_DATA]
+	hdr += '\x01\x00\x00' # version, osabi, abiversion
+	hdr += '\x00'*7
+	assert len(hdr) == 16
+	hdr += pack(fmt_u16, type_) 		# e_type = ET_EXEC
+	hdr += pack(fmt_u16, machine) 		# e_machine
+	hdr += pack(fmt_u32, version) 		# e_version = EV_CURRENT
+	hdr += pack(fmt_ptr, entry) 		# e_entry
+	hdr += pack(fmt_ptr, phoff) 		# e_phoff
+	hdr += pack(fmt_ptr, shoff) 		# e_shoff
+	hdr += pack(fmt_u32, flags) 		# e_flags
+	hdr += pack(fmt_u16, ehsize) 		# e_ehsize
+	hdr += pack(fmt_u16, phentsize) 	# e_phentsize
+	hdr += pack(fmt_u16, phnum) 		# e_phnum
+	hdr += pack(fmt_u16, shentsize) 	# e_shentsize
+	hdr += pack(fmt_u16, shnum) 		# e_shnum
+	hdr += pack(fmt_u16, shstrndx) 		# e_shstrndx
+	assert len(hdr) == sz_ehdr
+	return hdr
 
 def build_phdr(type_, flags, offset, vaddr, paddr, filesz, memsz, \
-  flags, align):
-  	hdr = ''
-	# build program header
-	hdr += pack(fmt_u32, 1)					# p_type = PT_LOAD
+  align):
+	global bits, fmt_u32, fmt_ptr, sz_phdr
+	hdr = pack(fmt_u32, type_)			# p_type = PT_LOAD
 	if bits == 64:
-		hdr += pack(fmt_u32, 0)				# p_flags
-	hdr += pack(fmt_ptr, 0)					# p_offset
-	hdr += pack(fmt_ptr, 0)					# p_vaddr
-	hdr += pack(fmt_ptr, 0)					# p_paddr (physical)
-	hdr += pack(fmt_ptr, 0)					# p_filesz
-	hdr += pack(fmt_ptr, 0)					# p_memsz
-	#hdr += pack(fmt_ptr, 0)				# p_flags
-	hdr += pack(fmt_ptr, 0)					# p_align
+		hdr += pack(fmt_u32, flags)		# p_flags
+	hdr += pack(fmt_ptr, offset)		# p_offset
+	hdr += pack(fmt_ptr, vaddr)			# p_vaddr
+	hdr += pack(fmt_ptr, paddr)			# p_paddr (physical)
+	hdr += pack(fmt_ptr, filesz)		# p_filesz
+	hdr += pack(fmt_ptr, memsz)			# p_memsz
+	if bits == 32:
+		hdr += pack(fmt_ptr, flags)		# p_flags
+	hdr += pack(fmt_ptr, align)			# p_align
 	assert len(hdr) == sz_phdr
+	return hdr
 
 def build_scn_hdr(name, type_, flags, addr, offset, size, link, info, \
   addralign, entsize):
+  	global fmt_u32, fmt_ptr, sz_shdr
   	hdr = ''
 	# section header
-	hdr += pack(fmt_u32, name)				# sh_name
-	hdr += pack(fmt_u32, type_)				# sh_type = SHT_PROGBITS
-	hdr += pack(fmt_ptr, flags)				# sh_flags = SHF_ALLOC|SHF_EXECINSTR
-	hdr += pack(fmt_u32, addr)				# sh_addr
-	hdr += pack(fmt_u32, offset)			# sh_offset
-	hdr += pack(fmt_u32, size)				# sh_size
-	hdr += pack(fmt_u32, link)				# sh_link
-	hdr += pack(fmt_u32, info)				# sh_info
-	hdr += pack(fmt_u32, addralign)			# sh_addralign
-	hdr += pack(fmt_u32, entsize)			# sh_entsize
+	hdr += pack(fmt_u32, name)			# sh_name
+	hdr += pack(fmt_u32, type_)			# sh_type = SHT_PROGBITS
+	hdr += pack(fmt_ptr, flags)			# sh_flags = SHF_ALLOC|SHF_EXECINSTR
+	hdr += pack(fmt_u32, addr)			# sh_addr
+	hdr += pack(fmt_u32, offset)		# sh_offset
+	hdr += pack(fmt_u32, size)			# sh_size
+	hdr += pack(fmt_u32, link)			# sh_link
+	hdr += pack(fmt_u32, info)			# sh_info
+	hdr += pack(fmt_u32, addralign)		# sh_addralign
+	hdr += pack(fmt_u32, entsize)		# sh_entsize
+	assert len(hdr) == sz_shdr
 	return hdr
 
-scn_strs = '\x00.text\x00.shstrtab\x00'
-ehdr = build_elf_hdr(args.ei_class, args.ei_data, ET_EXEC, args.e_machine, \
-  1, 0, sz_elfhdr, TODO, e_flags, e_ehsize, sz_phdr, 1, sz_scnhdr, 1, 0)
-phdr = build_phdr(PT_LOAD, flags, offset, vaddr, paddr, filesz, memsz, \
-  flags, align)
-shdr_null = build_scn_hdr(0, SHT_NULL, 0, 0, 0, 0, 0, 0, 0, 0)
-shdr_text = build_scn_hdr(1, SHT_PROGBITS, 6, addr, offs, size, 0, 0x1000, 0)
-shdr_strs = build_scn_hdr(7, SHT_STRTAB, 0, 0, OFFSET, SZ)
+# .text section from input file
+fp = open(args.fpath, 'rb')
+scn_text = fp.read()
+fp.close()
+# .shstrtab section
+scn_shstrtab = '\x00.text\x00.shstrtab\x00'
 
 fp = open(args.outfile, 'wb')
-fp.write(elf_hdr)
+
+# elf header
+ehdr = build_elf_hdr(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0)
+o_ehdr = fp.tell()
+fp.write(ehdr)
+
+# program header
+phdr = build_phdr(0,0,0,0,0,0,0,0)
+o_phdr = fp.tell()
 fp.write(phdr)
-fp.write(
-assert len(scn_hdr) == sz_scnhdr
 
+# text section
+o_text = fp.tell()
+fp.write(text)
 
+# shstrtab section
+o_shstrtab = fp.tell()
+fp.write(scn_shstrtab)
+
+# null section header
+shdr_null = build_scn_hdr(0, SHT_NULL, 0, 0, 0, 0, 0, 0, 0, 0)
+o_shdr_null = fp.tell()
+fp.write(shdr_null)
+
+# text section header
+shdr_text = build_scn_hdr(1, SHT_PROGBITS, 6, args.address, \
+  o_text, len(text), 0, 0x1000, 0)
+o_shdr_text = fp.tell()
+fp.write(shdr_text)
+
+# shstrtab section headerc
+shdr_strs = build_scn_hdr(7, SHT_STRTAB, 0, 0, o_shstrtab, \
+  len(scn_shstrtab))
+o_shdr_strs = fp.tell()
+fp.write(shdr_strs)
+
+# seek back, write real elf header
+ehdr = build_elf_hdr(args.ei_class, args.ei_data, ET_EXEC, args.machine, 1, \
+  args.entry, o_phdr, o_shdr_text, 0, sz_ehdr, sz_phdr, 1, sz_shdr, 3, 2):
+fp.seek(o_ehdr, SEEK_SET)
+fp.write(ehdr)
+
+phdr = build_phdr(PT_LOAD, PF_X|PF_R, o_text, args.addr, 0, len(text), len(text), 0x4000)
+
+# done!
+fp.close()
 
 
