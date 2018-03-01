@@ -36,7 +36,7 @@ int main(int ac, char **av)
 	int rc = -1;
 	int code_size, i, j, len, byte_idx;
 	bool inp_bits = false, inp_bytes = true;
-	bool verbose = true;
+	bool verbose = false;
 	uint8_t code[1024];
 
 	/* capstone variables */
@@ -226,9 +226,11 @@ int main(int ac, char **av)
 			max_instr_size = insn[i].size;
 
 	for(i=0; i<instr_count; ++i) {
-		printf("====instruction %d/%zu====\n", i+1, instr_count);
+		if(verbose)
+			printf("====instruction %d/%zu====\n", i+1, instr_count);
 
 		/* bytes */
+		/*
 		for(j=0; j<max_instr_size; ++j) {
 			if(j<insn[i].size)
 				printf("%02X", insn[i].bytes[j]);
@@ -238,9 +240,12 @@ int main(int ac, char **av)
 			if(j < max_instr_size - 1)
 				printf(" ");
 		}
+		printf("\t");
+		*/
 
 		/* opcode, operands */
-		printf("\t%s\t%s\n", insn[i].mnemonic, insn[i].op_str);
+		//printf("\033[31m%s\t%s\033[0m\n", insn[i].mnemonic, insn[i].op_str);
+		printf("\033[31m%s\t%s\033[0m\n", insn[i].mnemonic, insn[i].op_str);
 
 		/* architecture independent details
 			all architecures have:
@@ -249,26 +254,28 @@ int main(int ac, char **av)
 			- groups[] 
 		*/
 		detail = insn->detail;
-		printf("         groups:");
-		for(j=0; j<detail->groups_count; ++j) {
-			int group = detail->groups[j];
-			printf(" %d(%s)", group, cs_group_name(handle, group));
-		}
-		printf("\n");
-		printf("     reads regs:");
-		for(j=0; j<detail->regs_read_count; ++j) {
-			printf(" %s", cs_reg_name(handle, detail->regs_read[j]));
-		}
-		printf("\n");
-		printf("    writes regs:");
-		for(j=0; j<detail->regs_write_count; ++j) {
-			printf(" %s", cs_reg_name(handle, detail->regs_write[j]));
-		}
-		printf("\n");
-			
-		/* then there is union per-architecture (cs_x86, cs_arm64, cs_ppc, etc.) */
-		if(arch == CS_ARCH_PPC) {
-			ppc_print_detail(handle, insn);
+		if(verbose) {
+			printf("         groups:");
+			for(j=0; j<detail->groups_count; ++j) {
+				int group = detail->groups[j];
+				printf(" %d(%s)", group, cs_group_name(handle, group));
+			}
+			printf("\n");
+			printf("     reads regs:");
+			for(j=0; j<detail->regs_read_count; ++j) {
+				printf(" %s", cs_reg_name(handle, detail->regs_read[j]));
+			}
+			printf("\n");
+			printf("    writes regs:");
+			for(j=0; j<detail->regs_write_count; ++j) {
+				printf(" %s", cs_reg_name(handle, detail->regs_write[j]));
+			}
+			printf("\n");
+
+			/* then there is union per-architecture (cs_x86, cs_arm64, cs_ppc, etc.) */
+			if(arch == CS_ARCH_PPC) {
+				ppc_print_detail(handle, insn);
+			}
 		}
 	}
 
