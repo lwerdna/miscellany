@@ -27,7 +27,6 @@ char *ppc_bc_tostr(int id);
 char *ppc_bh_to_str(int id);
 char *ppc_ins_tostr(int id);
 
-
 void usage(char **av);
 
 /* main */
@@ -116,22 +115,6 @@ int main(int ac, char **av)
 	}
 
 	/* parse bits or bytes */
-	if(0 == parse_byte_list(av + byte_idx, ac - byte_idx, code))
-		inp_bytes = true;
-	if(0 == parse_bit_list(av + byte_idx, ac - byte_idx, code))
-		inp_bits = true;
-	if(!inp_bytes && !inp_bits) {
-		printf("ERROR: could not parse bytes or bits\n");
-		usage(av);
-		goto cleanup;
-	}
-	if(inp_bytes && inp_bits) {
-		if(ac - byte_idx >= 3)
-			inp_bytes = false;
-		else
-			inp_bits = false;
-	}
-
 	if(inp_bytes) {
 		code_size = ac - byte_idx;
 		if(code_size < 1) {
@@ -144,8 +127,15 @@ int main(int ac, char **av)
 
 	if(inp_bits) {
 		code_size = 0;
-		for(i=byte_idx; i<ac; ++i)
-			code_size += strlen(av[i]);
+		for(i=byte_idx; i<ac; ++i) {
+			int j, n = strlen(av[i]);
+			/* allow do-not-care 'x', convert to 0 */
+			for(j=0; j<n; ++j)
+				if(av[i][j]=='x')
+					av[i][j]='0';
+			/* count */
+			code_size += n;
+		}
 		code_size = (code_size + 7)/8;
 
 		parse_bit_list(av + byte_idx, ac - byte_idx, code);
@@ -291,13 +281,14 @@ void usage(char **av)
 {
 	printf("usage: %s <arch> <options> <bytes>\n", av[0]);
 	printf("\n");
-	printf("{x86, x64, arm, arm64, thumb} are architectures\n");
+	printf("{x86, x64, arm, arm64, thumb, ppc} are architectures\n");
 	printf("{bigend, lilend, bin, verbose} are options\n");
 	printf("\n");
 	printf("examples:\n");
 	printf("%s arm 0c c0 9f e5\n", av[0]);
 	printf("%s thumb 01 bc 04 f9 ef 8a\n", av[0]);
 	printf("%s x64 ff 35 01 00 00 00\n", av[0]);
+	printf("%s ppc 11 22 33 44\n", av[0]);
 	printf("\n");
 }
 

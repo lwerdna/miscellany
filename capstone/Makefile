@@ -11,5 +11,8 @@ capstone: $(SRCS)
 install:
 	install ./capstone /usr/local/bin
 
+link:
+	ln -s `pwd`/capstone /usr/local/bin/capstone
+
 clean:
 	rm capstone
