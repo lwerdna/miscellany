@@ -18,3 +18,4 @@ uninstall:
 	rm /usr/local/bin/cpdownload
 	rm /usr/local/bin/searchbin
 	rm /usr/local/bin/replace_in_files
+	rm /usr/local/bin/blog
