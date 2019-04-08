@@ -1,24 +1,24 @@
 
 install:
-	if [ ! -f "/usr/local/bin/ftime" ]; then ln -s `pwd`/ftime.py /usr/local/bin/ftime; fi;
-	if [ ! -f "/usr/local/bin/getpics" ]; then ln -s `pwd`/getpics.py /usr/local/bin/getpics; fi;
-	if [ ! -f "/usr/local/bin/decrypt" ]; then ln -s `pwd`/decrypt.py /usr/local/bin/decrypt; fi;
-	if [ ! -f "/usr/local/bin/fdump" ]; then ln -s `pwd`/fdump.py /usr/local/bin/fdump; fi;
-	if [ ! -f "/usr/local/bin/cpscreenshot" ]; then ln -s `pwd`/cpscreenshot.py /usr/local/bin/cpscreenshot; fi;
-	if [ ! -f "/usr/local/bin/cpdownload" ]; then ln -s `pwd`/cpdownload.py /usr/local/bin/cpdownload; fi;
-	if [ ! -f "/usr/local/bin/searchbin" ]; then ln -s `pwd`/searchbin.py /usr/local/bin/searchbin; fi;
-	if [ ! -f "/usr/local/bin/replace_in_files" ]; then ln -s `pwd`/replace_in_files.py /usr/local/bin/replace_in_files; fi;
-	if [ ! -f "/usr/local/bin/blog" ]; then ln -s `pwd`/blog.py /usr/local/bin/blog; fi;
-	if [ ! -f "/usr/local/bin/disthumb" ]; then ln -s `pwd`/disthumb.py /usr/local/bin/disthumb; fi;
+	if [ ! -f "${HOME}/bin/ftime" ]; then ln -s `pwd`/ftime.py ${HOME}/bin/ftime; fi;
+	if [ ! -f "${HOME}/bin/getpics" ]; then ln -s `pwd`/getpics.py ${HOME}/bin/getpics; fi;
+	if [ ! -f "${HOME}/bin/decrypt" ]; then ln -s `pwd`/decrypt.py ${HOME}/bin/decrypt; fi;
+	if [ ! -f "${HOME}/bin/fdump" ]; then ln -s `pwd`/fdump.py ${HOME}/bin/fdump; fi;
+	if [ ! -f "${HOME}/bin/cpscreenshot" ]; then ln -s `pwd`/cpscreenshot.py ${HOME}/bin/cpscreenshot; fi;
+	if [ ! -f "${HOME}/bin/cpdownload" ]; then ln -s `pwd`/cpdownload.py ${HOME}/bin/cpdownload; fi;
+	if [ ! -f "${HOME}/bin/searchbin" ]; then ln -s `pwd`/searchbin.py ${HOME}/bin/searchbin; fi;
+	if [ ! -f "${HOME}/bin/replace_in_files" ]; then ln -s `pwd`/replace_in_files.py ${HOME}/bin/replace_in_files; fi;
+	if [ ! -f "${HOME}/bin/blog" ]; then ln -s `pwd`/blog.py ${HOME}/bin/blog; fi;
+	if [ ! -f "${HOME}/bin/disthumb" ]; then ln -s `pwd`/disthumb.py ${HOME}/bin/disthumb; fi;
 
 uninstall:
-	rm /usr/local/bin/ftime
-	rm /usr/local/bin/getpics
-	rm /usr/local/bin/decrypt
-	rm /usr/local/bin/fdump
-	rm /usr/local/bin/cpscreenshot
-	rm /usr/local/bin/cpdownload
-	rm /usr/local/bin/searchbin
-	rm /usr/local/bin/replace_in_files
-	rm /usr/local/bin/blog
-	rm /usr/local/bin/disthumb
+	if [ -f "${HOME}/bin/ftime" ]; then rm ${HOME}/bin/ftime; fi;
+	if [ -f "${HOME}/bin/getpics" ]; then rm ${HOME}/bin/getpics; fi;
+	if [ -f "${HOME}/bin/decrypt" ]; then rm ${HOME}/bin/decrypt; fi;
+	if [ -f "${HOME}/bin/fdump" ]; then rm ${HOME}/bin/fdump; fi;
+	if [ -f "${HOME}/bin/cpscreenshot" ]; then rm ${HOME}/bin/cpscreenshot; fi;
+	if [ -f "${HOME}/bin/cpdownload" ]; then rm ${HOME}/bin/cpdownload; fi;
+	if [ -f "${HOME}/bin/searchbin" ]; then rm ${HOME}/bin/searchbin; fi;
+	if [ -f "${HOME}/bin/replace_in_files" ]; then rm ${HOME}/bin/replace_in_files; fi;
+	if [ -f "${HOME}/bin/blog" ]; then rm ${HOME}/bin/blog; fi;
+	if [ -f "${HOME}/bin/disthumb" ]; then rm ${HOME}/bin/disthumb; fi;

@@ -13,7 +13,7 @@ import subprocess
 BLOG_LOC = os.getenv("HOME") + '/fdumps/blog'
 
 def get_program_output(argv): # argv like ["identify", "/Users/andrewl/Desktop/Screen Shot 2018-06-25 at 10.40.17 AM.png"]
-	print 'running:', ' '.join(argv)
+	print('running:', ' '.join(argv))
 	process = subprocess.Popen(argv, stdout=subprocess.PIPE)
 	(output, err) = process.communicate()
 	exit_code = process.wait()
@@ -45,26 +45,26 @@ def gen_fname(ext='', nChars=4):
 def attach(src, randomize=False):
 	fname = os.path.split(src)[1]
 	fext = os.path.splitext(src)[1]
-	dst = os.path.join(BLOG_LOC, 'attachments', fname)
+	dst = os.path.join(BLOG_LOC, 'blog_attachments', fname)
 
 	while randomize:
 		fname = gen_fname(fext)
-		dst = os.path.join(BLOG_LOC, 'attachments', fname)
+		dst = os.path.join(BLOG_LOC, 'blog_attachments', fname)
 		if not os.path.isfile(dst):
 			break
 
 	if os.path.isfile(dst):
 		raise Exception('file %s already exists!' % dst)
 
-	print 'src: %s' % src
-	print 'dst: %s' % dst
+	print('src: %s' % src)
+	print('dst: %s' % dst)
 	shutil.copyfile(src, dst)
-	return os.path.join('./attachments', fname)
+	return os.path.join('./blog_attachments', fname)
 
-def gen_fname_post():
-	i = 0
+def gen_fname_post(title=''):
+	i = 2
 	time = get_iso8601_time()
-	fpath = os.path.join(BLOG_LOC, time + '.md')
+	fpath = os.path.join(BLOG_LOC, time + title + '.md')
 	while os.path.exists(fpath):
 		fpath = os.path.join(BLOG_LOC, '%s_%02d.md' % (time,i))
 		i += 1
@@ -106,24 +106,59 @@ def init_post_from_attach(fpath):
 	# edit post
 	os.system('open -a typora %s' % fpath_post)
 
+def latest_screenshot():
+	fpaths = glob.glob(os.environ['HOME'] + "/Desktop/Screen Shot *.png")
+	fpaths = sorted(fpaths, key=get_mtime, reverse=True)
+	return fpaths[0]
+
 if __name__ == '__main__':
 
 	if len(sys.argv) == 1:
-		print 'need arg: ls, new'
+		os.chdir(BLOG_LOC)
+		os.system('open -a typora .')
+
+	elif sys.argv[1] == 'ls':
+		os.system('ls -l '+BLOG_LOC)
 
 	elif sys.argv[1] == 'new':
 		os.chdir(BLOG_LOC)
 		fpath = gen_fname_post()
-		print 'creating: %s' % fpath
+		print('creating: %s' % fpath)
 		os.system('touch %s' % fpath)
 		os.system('open -a typora %s' % fpath)
 
+	elif sys.argv[1] == 'compile':
+		entries = os.listdir(BLOG_LOC)
+		entries = filter(lambda x: re.match(r'\d\d\d\d.*\.md$', x), entries)
+		fp = open(os.path.join(BLOG_LOC, "final.md"), 'w')
+		for e in sorted(entries, reverse=True):
+			etxt = ''
+			path = os.path.join(BLOG_LOC, e)
+			print('opening %s' % path)
+			with open(path, 'r') as fp2:
+				etxt = fp2.read()
+			fp.write(etxt + '\n<hr>\n')
+		fp.close()
+
+	elif sys.argv[1] in ['show','view']:
+		path = os.path.join(BLOG_LOC, 'final.md')
+		get_program_output(['open', path])
+
+	elif sys.argv[1] == 'attach':
+		attach(sys.argv[2])
+
+	elif sys.argv[1] == 'attachr':
+		attach(sys.argv[2], True)
+
+	elif sys.argv[1] in ['attachss','attachscreenshot']:
+		attach(latest_screenshot())
+
+	elif sys.argv[1] in ['attachrss','attachscreenshotr']:
+		attach(latest_screenshot())
+
 	elif sys.argv[1] == 'screenshot':
-		# attach screenshot, get path
-		fpaths = glob.glob(os.environ['HOME'] + "/Desktop/Screen Shot *.png")
-		fpaths = sorted(fpaths, key=get_mtime, reverse=True)
 		os.chdir(BLOG_LOC)
-		init_post_from_image(fpaths[0])
+		init_post_from_image(latest_screenshot())
 
 	elif os.path.isfile(sys.argv[1]):
 		fpath = os.path.abspath(sys.argv[1])
@@ -134,4 +169,4 @@ if __name__ == '__main__':
 		else:
 			init_post_from_attach(fpath)
 	else:
-		print 'dunno what to do'
+		print('dunno what to do')
