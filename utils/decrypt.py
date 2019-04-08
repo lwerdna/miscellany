@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 import os
 import sys
@@ -32,96 +32,119 @@ def xtea_encrypt_block(v, key, num_rounds=32):
 
 	return pack('>II', v0, v1)
 
-def xtea_encrypt_ofb(plaintext, key, iv="\x41\x42\x43\x44\x45\x46\x47\x48"):
+def xtea_encrypt_ofb(plaintext, key, iv=b'\x41\x42\x43\x44\x45\x46\x47\x48'):
 	length = len(plaintext)
 
 	# build stream at least as long as the plaintext
 	ct = iv
 	stream = []
-	for i in range((length + 7) / 8):
+	for i in range((length + 7) // 8):
 		ct = xtea_encrypt_block(ct, key)
 		stream += unpack("8B", ct)
 
+	#print('stream: ', stream)
+	#print('plaintext: ', plaintext)
+
 	# xor each byte
-	ciphertext = ''
+	ciphertext = b''
 	for i in range(length):
-		ciphertext += pack('B', ord(plaintext[i]) ^ stream[i])
+		ciphertext += pack('B', plaintext[i] ^ stream[i])
 
 	return ciphertext
 
-def doFile(fpath, key):
-	# open file contents
+def doFile(fpath, key, init):
+	# open file contents -> str
 	fp = open(fpath, 'r')
 	body = fp.read()
 	fp.close()
 
-	# b64 decode, decrypt, if this is not a new file
-	if len(body) > 0:
+	#  b64decode: str -> bytes
+	#    decrypt: bytes -> bytes
+	if not init and len(body) > 0:
 		if G_DO_BASE64:
 			body = base64.b64decode(body)
 
 		body = xtea_encrypt_ofb(body, key)
-		#print "new body: %s" % body
+
+	#  decode: bytes -> str
+	body = body.decode('utf-8')
 
 	# make temporary file
 	(tmp_handle, tmp_name) = tempfile.mkstemp(suffix=os.path.splitext(fpath)[1])
-	print "writing temporary contents to %s" % tmp_name
+	print("writing temporary contents to %s" % tmp_name)
 	tmp_obj = os.fdopen(tmp_handle, 'w')
 	tmp_obj.write(body)
 	tmp_obj.close()
 
 	# edit
-	print "invoking gvim and waiting... (gvim %s)" % tmp_name
+	print("invoking gvim and waiting... (gvim %s)" % tmp_name)
 	subprocess.call(["vim", '-f', tmp_name])
 
 	# now open, encode, encrypt
-	print "reading changes from %s" % tmp_name
+	print("reading changes from %s" % tmp_name)
 	fp = open(tmp_name)
 	body = fp.read()
 	fp.close()
 
-	print "encrypting, encoding"
+	# encode: str -> bytes
+	body = body.encode('utf-8')
+
+	#   encrypt: bytes -> bytes
+	# b64encode: bytes -> bytes (yes! unlike b64decode()!)
+	print("encrypting, encoding")
 	if len(body) > 0:
 		body = xtea_encrypt_ofb(body, key)
 
 		if G_DO_BASE64:
 			body = base64.b64encode(body)
 
-	print "propogating changes to %s" % fpath
+	# decode: bytes -> str
+	body = body.decode('utf-8')
+
+	print("propogating changes to %s" % fpath)
 	fp = open(fpath, 'w')
 	fp.write(body)
 	fp.close()
 
 	# delete old file
-	print "wiping %s" % tmp_name
+	print("wiping %s" % tmp_name)
 	if platform.system() == 'Darwin':
 		subprocess.call(['rm', '-P', tmp_name])
 	else:
 		subprocess.call(["shred", '-n', '200', '-z', '-u', tmp_name])
 
 	# done!
-	print "done!"
+	print("done!")
 
 def doString(string, key):
 	string = base64.b64decode(string)
 	string = xtea_encrypt_ofb(string, key)
-	print string
+	print(string)
 
 if __name__ == '__main__':
 	if len(sys.argv) <= 1:
 		raise Exception("supply a file or string to decrypt")
 
-	fpath_or_str = sys.argv[1]
+	av1 = sys.argv[1]
+
+	init = False
+	fpath_or_str = ''
+	if av1 == 'init':
+		init = True
+		fpath_or_str = sys.argv[2]
+	else:
+		fpath_or_str = sys.argv[1]
 
 	# ask password, derive key
 	pw = getpass.getpass()
-	m = hashlib.sha1(pw)
+	m = hashlib.sha1(pw.encode('utf-8'))
+	#m = hashlib.sha1(pw.decode('utf-8'))
 	digest = m.digest()
 	key = digest[0:16]
 
 	# open file or decrypt string
 	if os.path.isfile(fpath_or_str):
-		doFile(fpath_or_str, key)
+		doFile(fpath_or_str, key, init)
 	else:
 		doString(fpath_or_str, key)
 
