@@ -87,7 +87,7 @@ for cmd in cmds:
             continue
 
         #print "executing:\n    %s" % cmd
-        cmd = 'adb pull "%s"' % fpath
+        cmd = 'adb pull -a "%s"' % fpath
         output = runGetOutput(cmd, True)
         print(output)
 
@@ -100,4 +100,6 @@ for cmd in cmds:
             #cmd = 'mogrify -strip %s' % fname
             output = runGetOutput(cmd, True)
             print(output)
+            print('resetting file time after mogrify')
+            os.utime(fname, (epoch_file, epoch_file))
 
