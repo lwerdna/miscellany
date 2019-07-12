@@ -8,12 +8,12 @@ from time import localtime, mktime, struct_time
 
 def runGetOutput(cmdAndArgs, verbose=False):
     if verbose:
-    	print cmdAndArgs
+    	print(cmdAndArgs)
 
     pipe = subprocess.Popen(cmdAndArgs, stdout=subprocess.PIPE, shell=True);
     text = pipe.communicate()[0]
 
-    return text
+    return text.decode('utf-8')
 
 action = '-1'
 if len(sys.argv)>1:
@@ -26,11 +26,13 @@ cmds = [ \
 
 # localtime() returns time.struct_time, mktime() returns float
 epoch_now = mktime(localtime())
-print "epoch NOW: %d" % epoch_now
+print("epoch NOW: %d" % epoch_now)
 
 for cmd in cmds:
     output = runGetOutput(cmd, True)
-  
+    print(output)
+    print(repr(output))
+
     if re.search(r': No such file or directory', output):
         continue
 
@@ -41,10 +43,10 @@ for cmd in cmds:
     for i,l in enumerate(lines):
         if not l:
             continue
-   
+
         # calculate time of the file!
         #
-        print "splitting line: -%s-" % l
+        print("splitting line: -%s-" % l)
     	# -rw-rw---- 1 root sdcard_rw  2674934 2015-08-27 07:03 /sdcard/DCIM/Camera/IMG_20150827_070354.jpg
         m = re.match('^(.*?)\s+(.*?)\s+(.*?)\s+(.*?)\s+(.*?)\s+(.*?)\s+(.*?)\s+(.*?)$', l)
         if not m:
@@ -59,9 +61,9 @@ for cmd in cmds:
         epoch_file = mktime(struct_time([year, month, day, hour, minute, 0, 0, 1, -1]))
 
         fpath = fpath.rstrip()
-        print "considering file \"%s\" with time %04d/%02d/%02d %02d:%02d (epoch: %d)" % \
-            (fpath, year, month, day, hour, minute, epoch_file)
-    
+        print("considering file \"%s\" with time %04d/%02d/%02d %02d:%02d (epoch: %d)" % \
+            (fpath, year, month, day, hour, minute, epoch_file))
+
         if action == 'all':
             # k then just do it
             pass
@@ -73,21 +75,21 @@ for cmd in cmds:
                 # good! within range!
                 pass
             else:
-                print "    TOO OLD!"
+                print("    TOO OLD!")
                 continue
 
         else:
-            print "unknown action: %s" % action
+            print("unknown action: %s" % action)
             sys.exit(-1);
-   
+
         if os.path.exists(fpath):
-            print "    EXISTS ALREADY!"
+            print("    EXISTS ALREADY!")
             continue
 
         #print "executing:\n    %s" % cmd
         cmd = 'adb pull "%s"' % fpath
         output = runGetOutput(cmd, True)
-        print output
+        print(output)
 
         m = re.match(r'^.*/(.*\.jpg)$', fpath)
         if m:
@@ -97,5 +99,5 @@ for cmd in cmds:
             cmd = 'mogrify -strip -resize 2048x1536 %s' % fname
             #cmd = 'mogrify -strip %s' % fname
             output = runGetOutput(cmd, True)
-            print output
+            print(output)
 
