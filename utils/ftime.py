@@ -13,6 +13,9 @@ struct_stat = os.stat(fpath)
 aStruct = localtime(struct_stat.st_atime)
 mStruct = localtime(struct_stat.st_mtime)
 cStruct = localtime(struct_stat.st_ctime)
+#print('old access epoch: %s (%s)' % (mktime(aStruct), strftime(fmt, aStruct)))
+#print('old modify epoch: %s (%s)' % (mktime(mStruct), strftime(fmt, mStruct)))
+#sys.exit(-1)
 
 data = {}
 data['atime'] = strftime(fmt, aStruct)

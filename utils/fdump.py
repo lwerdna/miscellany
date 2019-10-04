@@ -6,6 +6,8 @@ import sys
 
 ignore = ['.DS_Store', '.fdump']
 
+NORMAL = '\x1B[0m'
+
 # { '<fname>':
 #   { 'tags' : ['<tag1>', '<tag2>', ...],
 #     'size' : 123
@@ -21,7 +23,8 @@ def load_db():
 	if not os.path.isfile('.fdump'):
 		raise Exception("ERROR: no .fdump found (is this a file dump? use \"init\")")
 
-	execfile('.fdump', globals())
+	with open('.fdump') as fp:
+		exec(fp.read(), globals())
 
 def save_db():
 	global database
@@ -54,7 +57,7 @@ def refresh():
 	for [src,dst] in renames:
 		database[dst] = database[src]
 		del database[src]
-		print '%s renamed to %s' % (src, dst)
+		print('%s renamed to %s' % (src, dst))
 
 	# if renames occured, recount orphans and missing
 	if renames:
@@ -64,21 +67,21 @@ def refresh():
 	# add orphans
 	for o in orphans:
 		database[o] = {'tags':[], 'size':os.path.getsize(o)}
-		print '%s added' % o
+		print('%s added' % o)
 
 	# forget missing
 	for m in missing:
 		del database[m]
-		print '%s deleted' % m
+		print('%s deleted' % m)
 
 def tagToColor(tag):
-	(fgBlack, fgWhite, fgDefault) = ('\033[30m', '\033[97m', '\033[39m')
+	(fgBlack, fgWhite, fgDefault) = ('\x1B[30m', '\x1B[97m', '\x1B[39m')
 	(bgRed, bgGreen, bgOrange, bgBlue, bgPurple, bgCyan, bgLightGray,
 	  bgDarkGray, bgLightRed, bgLightGreen, bgYellow, bgLightBlue,
-	  bgLightPurple, bgLightCyan, bgWhite, bgDefault) = ('\033[41m', '\033[42m',
-	  '\033[43m', '\033[44m', '\033[45m', '\033[46m', '\033[47m', '\033[100m',
-	  '\033[101m', '\033[102m', '\033[103m', '\033[104m', '\033[105m',
-	  '\033[106m', '\033[107m', '\033[49m')
+	  bgLightPurple, bgLightCyan, bgWhite, bgDefault) = ('\x1B[41m', '\x1B[42m',
+	  '\x1B[43m', '\x1B[44m', '\x1B[45m', '\x1B[46m', '\x1B[47m', '\x1B[100m',
+	  '\x1B[101m', '\x1B[102m', '\x1B[103m', '\x1B[104m', '\x1B[105m',
+	  '\x1B[106m', '\x1B[107m', '\x1B[49m')
 
 	c1 = fgWhite + bgRed
 	c2 = fgWhite + bgGreen
@@ -110,10 +113,10 @@ def pretty_print(fnames=None):
 		fnames = sorted(database.keys())
 
 	for f in fnames:
-		print f.ljust(j),
+		print(f.ljust(j), end='')
 		for tag in sorted(database[f]['tags']):
-			print '%s%s\033[49;0m' % (tagToColor(tag), tag),
-		print ''
+			print('%s%s\033[49;0m' % (tagToColor(tag), tag), end='')
+		print('')
 
 if __name__ == '__main__':
 	if len(sys.argv) < 2 or sys.argv[1]=='ls':
@@ -138,8 +141,8 @@ if __name__ == '__main__':
 					tagCount[t] = 1
 
 		for t in tagCount:
-			print '%s%s\033[49;0m(%d)' % (tagToColor(t), t, tagCount[t]),
-		print ''
+			print('%s%s\x1B[0m(%d) ' % (tagToColor(t), t, tagCount[t]))
+		print('')
 	elif sys.argv[1] == 'untagged':
 		load_db()
 		fnames = filter(lambda x: database[x]['tags']==[], database.keys())
