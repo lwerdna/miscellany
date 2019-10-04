@@ -10,6 +10,7 @@ install:
 	if [ ! -f "${HOME}/bin/replace_in_files" ]; then ln -s `pwd`/replace_in_files.py ${HOME}/bin/replace_in_files; fi;
 	if [ ! -f "${HOME}/bin/blog" ]; then ln -s `pwd`/blog.py ${HOME}/bin/blog; fi;
 	if [ ! -f "${HOME}/bin/disthumb" ]; then ln -s `pwd`/disthumb.py ${HOME}/bin/disthumb; fi;
+	if [ ! -f "${HOME}/bin/md2html" ]; then ln -s `pwd`/md2html.py ${HOME}/bin/md2html; fi;
 
 uninstall:
 	if [ -f "${HOME}/bin/ftime" ]; then rm ${HOME}/bin/ftime; fi;
@@ -22,3 +23,4 @@ uninstall:
 	if [ -f "${HOME}/bin/replace_in_files" ]; then rm ${HOME}/bin/replace_in_files; fi;
 	if [ -f "${HOME}/bin/blog" ]; then rm ${HOME}/bin/blog; fi;
 	if [ -f "${HOME}/bin/disthumb" ]; then rm ${HOME}/bin/disthumb; fi;
+	if [ -f "${HOME}/bin/md2html" ]; then rm ${HOME}/bin/md2html; fi;
