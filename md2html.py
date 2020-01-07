@@ -3,12 +3,17 @@
 import sys
 import markdown # pip install Markdown, https://github.com/Python-Markdown/markdown
 
+title = 'UNTITLED'
+
+if sys.argv[2:]:
+	title = sys.argv[2]
+
 header = '''
 <!DOCTYPE html>
 <html>
   <head>
     <meta charset="utf-8">
-    <title>My test page</title>
+    <title>%s</title>
     <style>
       table {
         border: 1px solid black;
@@ -30,23 +35,20 @@ header = '''
     </style>
   </head>
   <body>
-'''
+''' % title
 
 footer = '''
   </body>
 </html>
 '''
 
-if __name__ == '__main__':
-	(infile, outfile) = (sys.argv[1], sys.argv[2])
+infile = sys.argv[1]
+with open(infile) as fp:
+	md = fp.read()
 
-	with open(infile) as fp:
-		md = fp.read()
-
-	html = markdown.markdown(md, extensions=['tables', 'fenced_code', 'toc'])
-
-	with open(outfile, 'w') as fp:
-		fp.write(header)
-		fp.write(html)
-		fp.write(footer)
+# kinda equivalent to command line invocation: markdown2 -x fenced-code-blocks -x highlightjs-lang -x tables ./index.md
+sys.stdout.write(header)
+html = markdown.markdown(md, extensions=['tables', 'fenced_code', 'toc'])
+sys.stdout.write(html)
+sys.stdout.write(footer)
 
