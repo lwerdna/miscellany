@@ -67,20 +67,16 @@ def doFile(fpath, key, init):
 		body = xtea_encrypt_ofb(body, key)
 
 	#  decode: bytes -> str
-	body = body.decode('utf-8')
+	if type(body) is bytes:
+		body = body.decode('utf-8')
 
-	# make temporary file
 	(tmp_handle, tmp_name) = tempfile.mkstemp(suffix=os.path.splitext(fpath)[1])
 	print("writing temporary contents to %s" % tmp_name)
 	tmp_obj = os.fdopen(tmp_handle, 'w')
 	tmp_obj.write(body)
 	tmp_obj.close()
-
-	# edit
 	print("invoking gvim and waiting... (gvim %s)" % tmp_name)
 	subprocess.call(["vim", '-f', tmp_name])
-
-	# now open, encode, encrypt
 	print("reading changes from %s" % tmp_name)
 	fp = open(tmp_name)
 	body = fp.read()
@@ -106,14 +102,11 @@ def doFile(fpath, key, init):
 	fp.write(body)
 	fp.close()
 
-	# delete old file
 	print("wiping %s" % tmp_name)
 	if platform.system() == 'Darwin':
 		subprocess.call(['rm', '-P', tmp_name])
 	else:
 		subprocess.call(["shred", '-n', '200', '-z', '-u', tmp_name])
-
-	# done!
 	print("done!")
 
 def doString(string, key):
@@ -147,5 +140,4 @@ if __name__ == '__main__':
 		doFile(fpath_or_str, key, init)
 	else:
 		doString(fpath_or_str, key)
-
 
