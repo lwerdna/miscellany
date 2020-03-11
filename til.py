@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import os
 import re
@@ -16,9 +16,9 @@ if __name__ == '__main__':
 	# GET/PROCESS TITLE
 	title = input('TITLE: ')
 	fname = title.lower()
-	fname = re.sub(r'\W+', '_', fname) # \w is word character, \W is NOT word character
-	fname = re.sub(r'^_+', '', fname) # no leading _
-	fname = re.sub(r'_+$', '', fname) # no trailing _
+	#fname = re.sub(r'\W+', '_', fname) # \w is word character, \W is NOT word character
+	#fname = re.sub(r'^_+', '', fname) # no leading _
+	#fname = re.sub(r'_+$', '', fname) # no trailing _
 	fname = fname + '.md'
 	fpath = os.path.join(TIL_LOC, fname)
 
@@ -35,4 +35,5 @@ if __name__ == '__main__':
 		fp.write('-->\n')
 
 	# OPEN FILE
-	os.system('open -a typora %s' % fpath)
+	os.system('open -a macvim "%s"' % fpath)
+	#os.system('open -a typora %s' % fpath)
