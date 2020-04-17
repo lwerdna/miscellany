@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # goal: quickly drop into a python leetcode type+run environment
 

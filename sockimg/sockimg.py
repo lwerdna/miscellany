@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # display images written to unix socket
 
 import io, os, sys, time, select, socket

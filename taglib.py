@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 def tag_to_color(tag):
 	(fgBlack, fgWhite, fgDefault) = ('\x1B[30m', '\x1B[97m', '\x1B[39m')

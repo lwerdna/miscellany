@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # wrap a flat file as the .text section of an ELF file
 # resulting file is simple:

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # goal: type "pyquick" to immediately drop into a python type/run environment
 

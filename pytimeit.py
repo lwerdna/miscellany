@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # goal: type "pytime" to quickly get an environment to comparison test two execution times
 
