@@ -1,4 +1,3 @@
-
 install:
 	if [ ! -f "${HOME}/bin/ftime" ]; then ln -s `pwd`/ftime.py ${HOME}/bin/ftime; fi;
 	if [ ! -f "${HOME}/bin/getpics" ]; then ln -s `pwd`/getpics.py ${HOME}/bin/getpics; fi;
@@ -17,6 +16,7 @@ install:
 	if [ ! -f "${HOME}/bin/disthumb" ]; then ln -s `pwd`/disthumb.py ${HOME}/bin/disthumb; fi;
 	if [ ! -f "${HOME}/bin/md2html" ]; then ln -s `pwd`/md2html.py ${HOME}/bin/md2html; fi;
 	if [ ! -f "${HOME}/bin/ftags" ]; then ln -s `pwd`/ftags.py ${HOME}/bin/ftags; fi;
+	if [ ! -f "${HOME}/bin/mdtags" ]; then ln -s `pwd`/mdtags.py ${HOME}/bin/mdtags; fi;
 
 uninstall:
 	if [ -f "${HOME}/bin/ftime" ]; then rm ${HOME}/bin/ftime; fi;
@@ -36,3 +36,4 @@ uninstall:
 	if [ -f "${HOME}/bin/disthumb" ]; then rm ${HOME}/bin/disthumb; fi;
 	if [ -f "${HOME}/bin/md2html" ]; then rm ${HOME}/bin/md2html; fi;
 	if [ -f "${HOME}/bin/ftags" ]; then rm ${HOME}/bin/ftags; fi;
+	if [ -f "${HOME}/bin/mdtags" ]; then rm ${HOME}/bin/mdtags; fi;
