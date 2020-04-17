@@ -16,6 +16,7 @@ install:
 	if [ ! -f "${HOME}/bin/pytimeit" ]; then ln -s `pwd`/pytimeit.py ${HOME}/bin/pytimeit; fi;
 	if [ ! -f "${HOME}/bin/disthumb" ]; then ln -s `pwd`/disthumb.py ${HOME}/bin/disthumb; fi;
 	if [ ! -f "${HOME}/bin/md2html" ]; then ln -s `pwd`/md2html.py ${HOME}/bin/md2html; fi;
+	if [ ! -f "${HOME}/bin/ftags" ]; then ln -s `pwd`/ftags.py ${HOME}/bin/ftags; fi;
 
 uninstall:
 	if [ -f "${HOME}/bin/ftime" ]; then rm ${HOME}/bin/ftime; fi;
@@ -34,3 +35,4 @@ uninstall:
 	if [ -f "${HOME}/bin/pytimeit" ]; then rm ${HOME}/bin/pytimeit; fi;
 	if [ -f "${HOME}/bin/disthumb" ]; then rm ${HOME}/bin/disthumb; fi;
 	if [ -f "${HOME}/bin/md2html" ]; then rm ${HOME}/bin/md2html; fi;
+	if [ -f "${HOME}/bin/ftags" ]; then rm ${HOME}/bin/ftags; fi;
