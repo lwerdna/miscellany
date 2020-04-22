@@ -13,12 +13,12 @@ install:
 	if [ ! -f "${HOME}/bin/pyleetcode" ]; then ln -s `pwd`/pyleetcode.py ${HOME}/bin/pyleetcode; fi;
 	if [ ! -f "${HOME}/bin/pyquick" ]; then ln -s `pwd`/pyquick.py ${HOME}/bin/pyquick; fi;
 	if [ ! -f "${HOME}/bin/pytimeit" ]; then ln -s `pwd`/pytimeit.py ${HOME}/bin/pytimeit; fi;
-	if [ ! -f "${HOME}/bin/disthumb" ]; then ln -s `pwd`/disthumb.py ${HOME}/bin/disthumb; fi;
 	if [ ! -f "${HOME}/bin/md2html" ]; then ln -s `pwd`/md2html.py ${HOME}/bin/md2html; fi;
 	if [ ! -f "${HOME}/bin/ftags" ]; then ln -s `pwd`/ftags.py ${HOME}/bin/ftags; fi;
 	if [ ! -f "${HOME}/bin/mdtags" ]; then ln -s `pwd`/mdtags.py ${HOME}/bin/mdtags; fi;
 	if [ ! -f "${HOME}/bin/binja_dis" ]; then ln -s `pwd`/binja_dis.py ${HOME}/bin/binja_dis; fi;
 	if [ ! -f "${HOME}/bin/binja_lift" ]; then ln -s `pwd`/binja_lift.py ${HOME}/bin/binja_lift; fi;
+	if [ ! -f "${HOME}/bin/disassemble" ]; then ln -s `pwd`/disassemble.py ${HOME}/bin/disassemble; fi;
 
 uninstall:
 	if [ -f "${HOME}/bin/ftime" ]; then rm ${HOME}/bin/ftime; fi;
@@ -35,9 +35,9 @@ uninstall:
 	if [ -f "${HOME}/bin/pyleetcode" ]; then rm ${HOME}/bin/pyleetcode; fi;
 	if [ -f "${HOME}/bin/pyquick" ]; then rm ${HOME}/bin/pyquick; fi;
 	if [ -f "${HOME}/bin/pytimeit" ]; then rm ${HOME}/bin/pytimeit; fi;
-	if [ -f "${HOME}/bin/disthumb" ]; then rm ${HOME}/bin/disthumb; fi;
 	if [ -f "${HOME}/bin/md2html" ]; then rm ${HOME}/bin/md2html; fi;
 	if [ -f "${HOME}/bin/ftags" ]; then rm ${HOME}/bin/ftags; fi;
 	if [ -f "${HOME}/bin/mdtags" ]; then rm ${HOME}/bin/mdtags; fi;
 	if [ -f "${HOME}/bin/binja_dis" ]; then rm ${HOME}/bin/binja_dis; fi;
 	if [ -f "${HOME}/bin/binja_lift" ]; then rm ${HOME}/bin/binja_lift; fi;
+	if [ -f "${HOME}/bin/disassemble" ]; then rm ${HOME}/bin/disassemble; fi;
