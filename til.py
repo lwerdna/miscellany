@@ -35,5 +35,5 @@ if __name__ == '__main__':
 		fp.write('-->\n')
 
 	# OPEN FILE
-	os.system('open -a macvim "%s"' % fpath)
-	#os.system('open -a typora %s' % fpath)
+	#os.system('open -a macvim "%s"' % fpath)
+	os.system('open -a typora "%s"' % fpath)
