@@ -105,27 +105,45 @@ def parse_file(fpath):
 
 	return (arch, endian, text_section)
 
-md = None
-def disassemble(data):
-	global md
-	gen = md.disasm(data, 0)
-
-	offset = 0
-	for i in gen:
-		addrstr = '%08X' % i.address
-		bytestr = ' '.join(['%02X'%x for x in data[offset:offset+i.size]])
-		asmstr = i.mnemonic + ' ' + i.op_str
-		line = '%s: %s %s' % (addrstr, bytestr.ljust(48), asmstr)
-		print(line)
-		offset += i.size	
-
 if __name__ == '__main__':
 	fpath = sys.argv[1]
+	option = sys.argv[2] if len(sys.argv)>2 else ''
+
 	(arch, endian, code) = parse_file(fpath)
 	
 	if arch == 'x64':
 		md = capstone.Cs(capstone.CS_ARCH_X86, capstone.CS_MODE_64)
 	
 	assert md
-	disassemble(code)
 
+	gen = md.disasm(code, 0)
+
+	if option == 'carray':
+		print('unsigned char shellcode[] = {');
+
+	offset = 0
+	for i in gen:
+		if option == 'carray':
+			part1 = '\t'
+		else:
+			part1 = '%08X: ' % i.address
+
+		if option == 'carray':
+			part2 = ', '.join(['0x%02X'%x for x in code[offset:offset+i.size]]) + ','
+		else:
+			part2 = ' '.join(['%02X'%x for x in code[offset:offset+i.size]])
+
+		part3 = i.mnemonic + ' ' + i.op_str
+		if option == 'carray':
+			part3 = '/* %04X: %s */' % (offset, part3)
+
+		if option == 'carray':
+			bytejust = 64
+		else:
+			bytejust = 32
+
+		print('%s%s%s' % (part1, part2.ljust(bytejust), part3))
+		offset += i.size	
+
+	if option == 'carray':
+		print('};')
