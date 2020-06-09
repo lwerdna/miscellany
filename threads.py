@@ -102,6 +102,10 @@ if __name__ == '__main__':
 			fp.write(line)
 		os.system('open %s' % fpath)
 
+	elif arg == 'assets':
+		path = os.path.join(THREADS_LOC, 'assets')
+		os.system('open %s' % path)
+
 	#os.system('open -a macvim "%s"' % fpath)
 	#os.system('open -a typora "%s"' % fpath)
 	else:
