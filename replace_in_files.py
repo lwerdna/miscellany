@@ -15,10 +15,10 @@ import sys
 
 for root, dirs, files in os.walk('.'):
 	for fname in files:
-		#if not re.match(r'^Makefile.*$', fname):
-		#	continue
-		if not fname.endswith('.py'):
-			continue
+		#if not re.match(r'^Makefile.*$', fname): continue
+		#if not fname.endswith('.py'): continue
+		#if not fname.endswith('.md'): continue
+		if not fname.endswith('.xml'): continue
 
 		#if (root != '.') and (root[0:7] != './arch/'):
 		#	continue
@@ -29,19 +29,22 @@ for root, dirs, files in os.walk('.'):
 		fp = open(fpath, 'r+')
 		stuff = fp.read()
 
-		hits = re.findall(r'usr/bin/env python', stuff)
-		#hits2 = re.findall(r'\s-O3', stuff)
+		#hits = re.findall(r'/attachments/', stuff)
+		#hits = re.findall(r'usr/bin/env python', stuff)
+		#hits = re.findall(r'\s-O3', stuff)
+		before = r'<\?xml-stylesheet type="text/xsl" encoding="UTF-8" href="iform.xsl" version="1.0"\?>'
+		after = '<!-- '+before+' -->'
+		hits = re.findall(before, stuff)
 		total = len(hits)
 		if not total:
 			fp.close()
 			continue
 
-		print("replacing %d instances" % total)
+		print("\treplacing %d instances" % total)
 
 		if sys.argv[1:] and sys.argv[1] == 'really':
-			stuff = re.sub(r'env python', r'env python3', stuff)
-
-		fp.seek(0)
-		fp.write(stuff)
-		fp.close()
+			stuff = re.sub(before, after, stuff)
+			fp.seek(0)
+			fp.write(stuff)
+			fp.close()
 

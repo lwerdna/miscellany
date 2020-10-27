@@ -7,7 +7,7 @@ import time
 import random
 import tempfile
 
-THREADS_LOC = os.getenv("HOME") + '/fdumps/threads'
+THREADS_LOC = os.getenv("HOME") + '/fdumps/wiki'
 
 def get_iso8601_time():
 	seconds = time.time();
@@ -59,19 +59,29 @@ def parse_thread(fpath):
 	with open(fpath, 'r') as fp:
 		lines = [x.strip() for x in fp.readlines()]
 
+	if not lines:
+		raise Exception('%s has no lines' % fpath)
+
 	title = lines[0]
 	epochs = []
-
-	for line in lines:
-		if line.startswith('<div style'):
-			m = re.match(r'^<div style=.*>Posted (....-..-..)<.*$', line)
-			if m:
-				epochs.append(iso8601_to_epoch(m.group(1)))
+	if title and not title[0]=='#' and re.match(r'^[a-zA-Z0-9\?, :#\'\"\-\!\.]+$', title):
+		pass
+	else:
+		print('empty or non-alphanumeric title in %s' % fpath)
+		title = os.path.basename(fpath)
 
 	if not epochs:
-		raise Exception('%s had no timestamps' % fpath)
+		for line in lines:
+			if line.startswith('<div style'):
+				m = re.match(r'^<div style=.*>Posted (....-..-..)<.*$', line)
+				if m:
+					epochs.append(iso8601_to_epoch(m.group(1)))
 
 	today = get_iso8601_time()
+
+	if not epochs:
+		#raise Exception('%s had no timestamps' % fpath)
+		epochs = [iso8601_to_epoch(today) - 5*364*24*60*60]
 
 	num_posts = len(epochs)
 	time_c = min(epochs)
