@@ -21,6 +21,7 @@ install:
 	if [ ! -f "${HOME}/bin/binja_lift" ]; then ln -s `pwd`/binja_lift.py ${HOME}/bin/binja_lift; fi;
 	if [ ! -f "${HOME}/bin/disassemble" ]; then ln -s `pwd`/disassemble.py ${HOME}/bin/disassemble; fi;
 	if [ ! -f "${HOME}/bin/x86repl" ]; then ln -s `pwd`/x86repl.py ${HOME}/bin/x86repl; fi;
+	if [ ! -f "${HOME}/bin/arm64repl" ]; then ln -s `pwd`/arm64repl.py ${HOME}/bin/arm64repl; fi;
 
 uninstall:
 	if [ -f "${HOME}/bin/ftime" ]; then rm ${HOME}/bin/ftime; fi;
@@ -45,3 +46,4 @@ uninstall:
 	if [ -f "${HOME}/bin/binja_lift" ]; then rm ${HOME}/bin/binja_lift; fi;
 	if [ -f "${HOME}/bin/disassemble" ]; then rm ${HOME}/bin/disassemble; fi;
 	if [ -f "${HOME}/bin/x86repl" ]; then rm ${HOME}/bin/x86repl; fi;
+	if [ -f "${HOME}/bin/arm64repl" ]; then rm ${HOME}/bin/arm64repl; fi;
