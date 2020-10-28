@@ -1,6 +1,7 @@
 #!/usr/bin/env python
-
-# an assembly REPL for x86
+# an assembly REPL for aarch64
+# pip install keystone-engine
+# pip install unicorn
 
 import re
 import readline
@@ -9,6 +10,8 @@ from unicorn import *
 from unicorn.arm64_const import *
 
 from keystone import *
+
+from termcolor import colored
 
 rname_to_unicorn = {
 	'x0': UC_ARM64_REG_X0, 'x1': UC_ARM64_REG_X1, 'x2': UC_ARM64_REG_X2, 'x3': UC_ARM64_REG_X3,
@@ -32,6 +35,46 @@ ks = Ks(KS_ARCH_ARM64, KS_MODE_LITTLE_ENDIAN)
 mu = Uc(UC_ARCH_ARM64, UC_MODE_LITTLE_ENDIAN)
 mu.mem_map(ADDRESS, 4096)
 
+# track context
+
+regs_old = [-1]*33
+def show_context():
+	global mu
+	global regs_old
+
+	reg_ids = [
+		UC_ARM64_REG_X0, UC_ARM64_REG_X1, UC_ARM64_REG_X2, UC_ARM64_REG_X3,
+		UC_ARM64_REG_X4, UC_ARM64_REG_X5, UC_ARM64_REG_X6, UC_ARM64_REG_X7,
+		UC_ARM64_REG_X8, UC_ARM64_REG_X9, UC_ARM64_REG_X10, UC_ARM64_REG_X11,
+		UC_ARM64_REG_X12, UC_ARM64_REG_X13, UC_ARM64_REG_X14, UC_ARM64_REG_X15,
+		UC_ARM64_REG_X16, UC_ARM64_REG_X17, UC_ARM64_REG_X18, UC_ARM64_REG_X19,
+		UC_ARM64_REG_X20, UC_ARM64_REG_X21, UC_ARM64_REG_X22, UC_ARM64_REG_X23,
+		UC_ARM64_REG_X24, UC_ARM64_REG_X25, UC_ARM64_REG_X26, UC_ARM64_REG_X27,
+		UC_ARM64_REG_X28, UC_ARM64_REG_FP, UC_ARM64_REG_LR, UC_ARM64_REG_PC,
+		UC_ARM64_REG_NZCV
+	]
+
+	regs = [mu.reg_read(x) for x in reg_ids]
+	regs_str = ['%016X' % x for x in regs]
+	regs_str = [x if regs[i]==regs_old[i] else colored(x, 'red') for (i,x) in enumerate(regs_str)]
+
+	# special handling of nzcv
+	(n,z,c,v) = (bool(regs[32] & 0x80000000), bool(regs[32] & 0x40000000), \
+		bool(regs[32] & 0x20000000), bool(regs[32] & 0x10000000))
+
+	# show context
+	print(' x0=%s  x1=%s  x2=%s  x3=%s' % (regs_str[0], regs_str[1], regs_str[2], regs_str[3]))
+	print(' x4=%s  x5=%s  x6=%s  x7=%s' % (regs_str[4], regs_str[5], regs_str[6], regs_str[7]))
+	print(' x8=%s  x9=%s x10=%s x11=%s' % (regs_str[8], regs_str[9], regs_str[10], regs_str[11]))
+	print('x12=%s x13=%s x14=%s x15=%s' % (regs_str[12], regs_str[13], regs_str[14], regs_str[15]))
+	print('x16=%s x17=%s x18=%s x19=%s' % (regs_str[16], regs_str[17], regs_str[18], regs_str[19]))
+	print('x20=%s x21=%s x22=%s x23=%s' % (regs_str[20], regs_str[21], regs_str[22], regs_str[23]))
+	print('x24=%s x25=%s x26=%s x27=%s' % (regs_str[24], regs_str[25], regs_str[26], regs_str[27]))
+	print('x28=%s  fp=%s  lr=%s' % (regs_str[28], regs_str[29], regs_str[30]))
+	print(' pc=%s  nzcv=%s (N=%d Z=%d C=%d V=%d)' % (regs_str[31], regs_str[32], n, z, c, v))
+
+	regs_old = regs
+
 while 1:
 	cmd = input('> ')
 
@@ -47,7 +90,7 @@ while 1:
 		if isasm and cmd:
 			encoding, count = ks.asm(cmd)
 			data = b''.join([x.to_bytes(1,'big') for x in encoding])
-			print('assembles to:', data.hex())
+			print('assembles to:', colored(data.hex(), 'green'))
 			mu.mem_write(ADDRESS, data)
 			mu.emu_start(ADDRESS, ADDRESS + len(encoding))
 
@@ -57,29 +100,4 @@ while 1:
 	except UcError as e:
 		print('unicorn error:', e)
 
-	# show context
-	print(' x0=%016X  x1=%016X  x2=%016X  x3=%016X' % \
-		(mu.reg_read(UC_ARM64_REG_X0), mu.reg_read(UC_ARM64_REG_X1), \
-		mu.reg_read(UC_ARM64_REG_X2), mu.reg_read(UC_ARM64_REG_X3)))
-	print(' x4=%016X  x5=%016X  x6=%016X  x7=%016X' % \
-		(mu.reg_read(UC_ARM64_REG_X4), mu.reg_read(UC_ARM64_REG_X5), \
-		mu.reg_read(UC_ARM64_REG_X6), mu.reg_read(UC_ARM64_REG_X7)))
-	print(' x8=%016X  x9=%016X x10=%016X x11=%016X' % \
-		(mu.reg_read(UC_ARM64_REG_X8), mu.reg_read(UC_ARM64_REG_X9), \
-		mu.reg_read(UC_ARM64_REG_X10), mu.reg_read(UC_ARM64_REG_X11)))
-	print('x12=%016X x13=%016X x14=%016X x15=%016X' % \
-		(mu.reg_read(UC_ARM64_REG_X12), mu.reg_read(UC_ARM64_REG_X13), \
-		mu.reg_read(UC_ARM64_REG_X14), mu.reg_read(UC_ARM64_REG_X15)))
-	print('x16=%016X x17=%016X x18=%016X x19=%016X' % \
-		(mu.reg_read(UC_ARM64_REG_X16), mu.reg_read(UC_ARM64_REG_X17), \
-		mu.reg_read(UC_ARM64_REG_X18), mu.reg_read(UC_ARM64_REG_X19)))
-	print('x21=%016X x22=%016X x23=%016X x24=%016X' % \
-		(mu.reg_read(UC_ARM64_REG_X21), mu.reg_read(UC_ARM64_REG_X22), \
-		mu.reg_read(UC_ARM64_REG_X23), mu.reg_read(UC_ARM64_REG_X24)))
-	print('x25=%016X x26=%016X x27=%016X x28=%016X' % \
-		(mu.reg_read(UC_ARM64_REG_X25), mu.reg_read(UC_ARM64_REG_X26), \
-		mu.reg_read(UC_ARM64_REG_X27), mu.reg_read(UC_ARM64_REG_X28)))
-	print(' fp=%016X  lr=%016X' % 
-		(mu.reg_read(UC_ARM64_REG_FP), mu.reg_read(UC_ARM64_REG_LR)))
-	print(' pc=%016X  nzcv=%016X' % 
-		(mu.reg_read(UC_ARM64_REG_PC), mu.reg_read(UC_ARM64_REG_NZCV)))
+	show_context()
