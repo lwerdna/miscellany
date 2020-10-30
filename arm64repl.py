@@ -4,6 +4,7 @@
 # pip install unicorn
 
 import re
+import struct
 import readline
 
 from unicorn import *
@@ -12,6 +13,44 @@ from unicorn.arm64_const import *
 from keystone import *
 
 from termcolor import colored
+
+def get_hex_dump(data, addr=0, grouping=1, endian='little'):
+	result = ''
+	while(data):
+		ascii = ''
+		buff16 = data[0:16]
+		data = data[16:]
+		result += "%08X: " % addr
+		i = 0
+		while i < 16:
+			if(i < len(buff16)):
+				f0 = { \
+					'big':	{1:'>B', 2:'>H', 4:'>I', 8:'>Q'}, \
+					'little': {1:'<B', 2:'<H', 4:'<I', 8:'<Q'} \
+				}
+				f1 = { \
+					1:'%02X ', 2:'%04X ', 4:'%08X ', 8:'%016X ' \
+				}
+				temp = struct.unpack(f0[endian][grouping], buff16[i:i+grouping])[0]
+				result += f1[grouping] % temp
+				for j in range(grouping):
+					if(buff16[i+j] >= ord(' ') and buff16[i+j] <= ord('~')):
+						ascii += chr(buff16[i+j])
+					else:
+						ascii += '.'
+			else:
+				if grouping == 1:
+					result += ' '*len('DE ')
+				elif grouping == 2:
+					result += ' '*len('DEAD ')
+				elif grouping == 4:
+					result += ' '*len('DEADBEEF ')
+				elif grouping == 8:
+					result += ' '*len('DEADBEEFCAFEBABE ')
+			i += grouping
+		result += ' %s\n' % ascii
+		addr += 16;
+	return result
 
 rname_to_unicorn = {
 	'x0': UC_ARM64_REG_X0, 'x1': UC_ARM64_REG_X1, 'x2': UC_ARM64_REG_X2, 'x3': UC_ARM64_REG_X3,
@@ -33,6 +72,7 @@ rname_to_unicorn = {
 ADDRESS = 0x1000000
 ks = Ks(KS_ARCH_ARM64, KS_MODE_LITTLE_ENDIAN)	
 mu = Uc(UC_ARCH_ARM64, UC_MODE_LITTLE_ENDIAN)
+mu.mem_map(0, 4096)
 mu.mem_map(ADDRESS, 4096)
 
 # track context
@@ -86,7 +126,23 @@ while 1:
 			(rname, rval) = m.group(1, 2)
 			mu.reg_write(rname_to_unicorn[rname], int(rval, 16))
 			isasm = False
-	
+
+		m = re.match(r'.db (.*)', cmd)
+		if m:
+			addr = int(m.group(1),16)
+			data = mu.mem_read(addr, 64)
+			print(get_hex_dump(data, addr))
+			isasm = False
+
+		m = re.match(r'.raw (.*)', cmd)
+		if m:
+			arg = m.group(1)
+			data = b''.join([int(x, 16).to_bytes(1,'big') for x in arg.split()])
+			print('writing:', colored(data.hex(), 'green'))
+			mu.mem_write(ADDRESS, data)
+			isasm = False
+			mu.emu_start(ADDRESS, ADDRESS + len(data))
+
 		if isasm and cmd:
 			encoding, count = ks.asm(cmd)
 			data = b''.join([x.to_bytes(1,'big') for x in encoding])
@@ -98,6 +154,10 @@ while 1:
 		print('keystone error:', e)
 
 	except UcError as e:
+		print(e)
+		print(type(e))
+		print(dir(e))
+		print(e.args)
 		print('unicorn error:', e)
 
 	show_context()
