@@ -25,16 +25,15 @@ def edit_file(fpath, method='macvim'):
 #------------------------------------------------------------------------------
 
 def db_print(fname):
-	database = db_load()
+	database = kblib.db_load()
 
 	fnames = [fname] if fname else sorted(database)
 	for fname in fnames:
 		print(fname)
-		print('\t        title: %s' % database[fname]['title'])
-		print('\t        mtime: %s' % epochToISO8601(database[fname]['mtime']))
-		print('\t date_created: %s' % epochToISO8601(database[fname]['date_created']))
-		print('\t  date_edited: %s' % epochToISO8601(database[fname]['date_edited']))
-		print('\t         tags: %s' % database[fname]['tags'])
+		info = database[fname]
+		width = max([len(x) for x in info])
+		for key in sorted(info):
+			print('\t%s: %s' % (key.ljust(width), info[key]))
 
 	print('%d files listed' % len(fnames))
 
@@ -59,7 +58,7 @@ def print_columns(fnames):
 		fnames = fnames[column_quantity:]
 
 def perform_ls(limit, tags=[]):
-	database = db_load()
+	database = kblib.db_load()
 
 	# if tags are specified, filter entries that have tags
 	if tags:

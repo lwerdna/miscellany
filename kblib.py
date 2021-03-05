@@ -18,6 +18,7 @@ database = {}
 # schema:
 # {
 #	<fname>: {
+#				'fpath': path (string)
 #				'title': title (string),
 #				'mtime': file modification time (float),
 #				'date_created': creation time (float),
@@ -51,8 +52,9 @@ def ISO8601ToEpoch(isoString: str):
 def parse_list(code):
 	assert code.startswith('[') and code.endswith(']')
 	code = code[1:-1]
-	code = code.replace(',', '')
-	return code.split(' ')
+	code = code.split(',')
+	code = [c.strip() for c in code]
+	return code
 
 def read_front_matter(fpath):
 	# { 'DATE_CREATED': '2020-12-15',
@@ -79,6 +81,42 @@ def read_front_matter(fpath):
 		result[var_name] = var_val
 
 	return result
+
+def write_front_matter(fpath, fm):
+	with open(fpath) as fp:
+		lines = [l.strip() for l in fp.readlines()]
+
+	if lines[0]=='---':
+		lines = lines[1:]
+		tmp = lines.index('---')
+		lines = lines[tmp+1:]
+
+	fmlines = ['---']
+	for(name, value) in sorted(fm.items()):
+		if type(value) == list:
+			value = '[' + ','.join([str(x) for x in value]) + ']'
+		else:
+			value = str(value)
+		fmlines.append('%s: %s' % (name, str(value)))
+	fmlines.append('---')
+
+	lines = fmlines + lines
+	with open(fpath, 'w') as fp:
+		fp.write('\n'.join(lines))
+
+def set_front_matter_title(fname, title):
+	fpath = os.path.join(PATH_KB, fname)
+	fm = read_front_matter(fpath)
+	fm['TITLE'] = title
+	write_front_matter(fpath, fm)
+
+# tags is like: ['one', 'two', 'three']
+def set_front_matter_tags(fname, tags):
+	fpath = os.path.join(PATH_KB, fname)
+	fm = read_front_matter(fpath)
+	fm['TAGS'] = tags
+	write_front_matter(fpath, fm)
+
 
 #------------------------------------------------------------------------------
 # file parsing stuff
@@ -120,8 +158,8 @@ def get_date_created(fname):
 	if oldest:
 		return oldest
 
-	# else we can only sort it last
-	return 0;
+	# else it's file time
+	return os.path.getctime(fname);
 
 # attempt to infer when file was modified
 def get_date_edited(fname):
@@ -142,8 +180,8 @@ def get_date_edited(fname):
 	if m:
 		return ISO8601ToEpoch(m.group(1))
 
-	# else, the edit date is the created data
-	return get_date_created(fname)
+	# else, the edit date is the file modification time
+	return os.path.getmtime(fname)
 
 #------------------------------------------------------------------------------
 # database handling
@@ -183,7 +221,11 @@ def db_update(force=False):
 				continue
 			cprint('updating %s' % fname, 'yellow')
 
+		fpath = os.path.join(PATH_KB, fname)
 		database[fname] = {
+			'fname': fname,
+			'fpath': fpath,
+			'fsize': os.path.getsize(fpath),
 			'title': get_title(fname),
 			'mtime': mtime_fs,
 			'date_created': get_date_created(fname),
