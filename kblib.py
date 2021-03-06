@@ -144,22 +144,19 @@ def get_date_created(fname):
 	with open(fname, 'r') as fp:
 		data = fp.read()
 
-	# if the file is marked, either in frontmatter or html comments
+	# frontmatter has highest priority
 	m = re.search(r'DATE_CREATED: (\d\d\d\d-\d\d-\d\d)', data)
 	if m:
 		return ISO8601ToEpoch(m.group(1))
 
-	# else, see if there's an html log entry
-	oldest = None
+	# else, filesystem and log entries battle
+	#oldest = os.path.getctime(fname);
+	oldest = os.stat(fname).st_birthtime
 	for datestr in re.findall(r'>Posted (\d\d\d\d-\d\d-\d\d)</div>', data):
 		tmp = ISO8601ToEpoch(datestr)
-		if oldest == None or tmp > oldest:
+		if oldest == None or tmp < oldest:
 			oldest = tmp
-	if oldest:
-		return oldest
-
-	# else it's file time
-	return os.path.getctime(fname);
+	return oldest
 
 # attempt to infer when file was modified
 def get_date_edited(fname):
