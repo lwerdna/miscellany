@@ -105,6 +105,7 @@ def write_front_matter(fpath, fm):
 		fp.write('\n'.join(lines))
 
 def set_front_matter_title(fname, title):
+	global PATH_KB
 	fpath = os.path.join(PATH_KB, fname)
 	fm = read_front_matter(fpath)
 	fm['TITLE'] = title
@@ -112,11 +113,25 @@ def set_front_matter_title(fname, title):
 
 # tags is like: ['one', 'two', 'three']
 def set_front_matter_tags(fname, tags):
+	global PATH_KB
 	fpath = os.path.join(PATH_KB, fname)
 	fm = read_front_matter(fpath)
 	fm['TAGS'] = tags
 	write_front_matter(fpath, fm)
 
+def set_front_matter_date_created(fname, date):
+	global PATH_KB
+	fpath = os.path.join(PATH_KB, fname)
+	fm = read_front_matter(fpath)
+	fm['DATE_CREATED'] = date
+	write_front_matter(fpath, fm)
+
+def set_front_matter_date_modified(fname, date):
+	global PATH_KB
+	fpath = os.path.join(PATH_KB, fname)
+	fm = read_front_matter(fpath)
+	fm['DATE_MODIFIED'] = date
+	write_front_matter(fpath, fm)
 
 #------------------------------------------------------------------------------
 # file parsing stuff
@@ -242,7 +257,6 @@ def db_update(force=False):
 #------------------------------------------------------------------------------
 
 def gen_fname(ext='.md', n_chars=8):
-	global PATH_KB
 	random.seed()
 
 	while True:
@@ -259,8 +273,6 @@ def gen_fname(ext='.md', n_chars=8):
 			return fname
 
 def initialize_post(fpath):
-	global PATH_KB
-
 	now_str = epochToISO8601('now')
 
 	with open(fpath, 'w') as fp:
