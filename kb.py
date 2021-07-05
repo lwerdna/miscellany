@@ -173,8 +173,22 @@ if __name__ == '__main__':
     elif cmd == 'new':
         fname = gen_fname()
         fpath = os.path.join(PATH_KB, fname)
-        initialize_post(fname)
-        edit_file(fname, 'typora')
+        initialize_post(fpath)
+        edit_file(fpath, 'typora')
+
+    elif cmd in ['journal', 'j']:
+        title = 'Journal %s' % epochToISO8601('now')
+        fname = gen_fname_journal()
+        fpath = os.path.join(PATH_KB, fname)
+        if not os.path.exists(fpath):
+            print('creating %s' % fpath)
+            initialize_post(fpath, title)
+            fpath_templ = os.path.join(os.environ['HOME'], 'journal_template.md')
+            if os.path.exists(fpath_templ):
+                print('appending %s' % fpath_templ)
+                open(fpath, 'a+').write(open(fpath_templ, 'r').read())
+        print('opening %s' % fpath)
+        edit_file(fpath, 'gvim')
 
     # assume it's a filename
     else:
