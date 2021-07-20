@@ -6,6 +6,10 @@ import re
 import os
 import sys
 
+print('WARNING: this will modify all python files in current directory and children')
+print('ctrl+c now to abort')
+input()
+
 for root, dirs, files in os.walk('.'):
 	for fname in files:
 		if not fname.endswith('.py'): continue
