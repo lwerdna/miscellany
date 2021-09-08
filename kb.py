@@ -58,6 +58,9 @@ def print_columns(fnames):
         print(line)
         fnames = fnames[column_quantity:]
 
+def terminal_link(url, text):
+    return '\x1B]8;;file://%s\x1B\\%s\x1B]8;;\x1B\\' % (url, text)
+
 def perform_ls(limit=16):
     database = db_load()
 
@@ -75,11 +78,18 @@ def perform_ls(limit=16):
     for fname in sorted(database, key=lambda k: database[k]['date_edited'], reverse=True)[0:limit]:
         date = pretty_time(database[fname]['date_edited'])
         if date != current:
+            if current:
+                print()
             cprint(date, attrs=['bold'])
             #cprint(pm, 'white', 'on_blue')
             current = date
 
-        print('    ', fname)
+        ltext = database[fname]['title']
+        if not ltext or ltext == 'Untitled':
+            ltext = fname
+
+        print(terminal_link(database[fname]['fpath'], ltext))
+        #print('    ', fname)
 
 def perform_ls2(limit, tags=[]):
     database = db_load()
@@ -147,11 +157,9 @@ if __name__ == '__main__':
             fname = sys.argv[2]
         db_print(fname)
     elif cmd == 'ls':
-        perform_ls(16)
+        perform_ls(16 if not arg0 else int(arg0))
     elif cmd == 'ls2':
-        perform_ls2(32)
-    elif cmd == 'lsall':
-        perform_ls(1000000)
+        perform_ls2(32 if not arg0 else int(arg0))
     elif cmd == 'rfm':
         front_matter = read_front_matter(arg0)
         print(front_matter)

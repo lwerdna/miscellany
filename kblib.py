@@ -221,6 +221,10 @@ def db_update(force=False):
         if not (fname.endswith('.md') or fname.endswith('.txt')):
             continue
 
+        # ignore journal entries
+        if re.match(r'^\d\d\d\d-\d\d-\d\d\.md$', fname):
+            continue
+
         mtime_fs = os.path.getmtime(fname)
 
         if not fname in database:
