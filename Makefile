@@ -26,6 +26,7 @@ install:
 	if [ ! -f "${HOME}/bin/kb" ]; then ln -s `pwd`/kb.py ${HOME}/bin/kb; fi;
 	if [ ! -f "${HOME}/bin/kbfltk" ]; then ln -s `pwd`/kbfltk.py ${HOME}/bin/kbfltk; fi;
 	if [ ! -f "${HOME}/bin/pyputprints" ]; then ln -s `pwd`/pyputprints.py ${HOME}/bin/pyputprints; fi;
+	if [ ! -f "${HOME}/bin/openpickle" ]; then ln -s `pwd`/openpickle.py ${HOME}/bin/openpickle; fi;
 
 uninstall:
 	if [ -f "${HOME}/bin/ftime" ]; then rm ${HOME}/bin/ftime; fi;
@@ -55,4 +56,5 @@ uninstall:
 	if [ -f "${HOME}/bin/kb" ]; then rm ${HOME}/bin/kb; fi;
 	if [ -f "${HOME}/bin/kbfltk" ]; then rm ${HOME}/bin/kbfltk; fi;
 	if [ -f "${HOME}/bin/pyputprints" ]; then rm ${HOME}/bin/pyputprints; fi;
+	if [ -f "${HOME}/bin/openpickle" ]; then rm ${HOME}/bin/openpickle; fi;
 
