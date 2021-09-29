@@ -66,12 +66,12 @@ def read_front_matter(fpath):
     with open(fpath) as fp:
         lines = [l.strip() for l in fp.readlines()]
 
-    if not lines[0]=='---':
+    if not (lines[0]=='---' or lines[0]=='<!--'):
         return result
 
     for i in range(1, len(lines)):
         line = lines[i].strip()
-        if line == '---':
+        if line=='---' or line=='-->':
             break
         m = re.match('^\s*(\w+)\s*:\s*(.*)$', line)
         assert m, 'malformed front matter: %s' % line
@@ -84,7 +84,8 @@ def read_front_matter(fpath):
 
 def write_front_matter(fpath, fm):
     with open(fpath) as fp:
-        lines = [l.strip() for l in fp.readlines()]
+        #lines = [l.strip() for l in fp.readlines()]
+        lines = [l.rstrip() for l in fp.readlines()]
 
     if lines[0]=='---':
         lines = lines[1:]
@@ -92,7 +93,7 @@ def write_front_matter(fpath, fm):
         lines = lines[tmp+1:]
 
     fmlines = ['---']
-    for(name, value) in sorted(fm.items()):
+    for(name, value) in fm.items():
         if type(value) == list:
             value = '[' + ','.join([str(x) for x in value]) + ']'
         else:
@@ -103,6 +104,15 @@ def write_front_matter(fpath, fm):
     lines = fmlines + lines
     with open(fpath, 'w') as fp:
         fp.write('\n'.join(lines))
+
+def set_front_matter_uid(fname, uid=None):
+    global PATH_KB
+    fpath = os.path.join(PATH_KB, fname)
+    fm = read_front_matter(fpath)
+    if not uid:
+        uid = gen_unique_id()
+    fm['UNIQUE_ID'] = uid
+    write_front_matter(fpath, fm)
 
 def set_front_matter_title(fname, title):
     global PATH_KB
@@ -260,6 +270,15 @@ def db_update(force=False):
 # new post stuff
 #------------------------------------------------------------------------------
 
+def gen_unique_id():
+    import random
+    random.seed()
+    lookup = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    uid = ''
+    for i in range(4):
+        uid += lookup[random.randint(0,len(lookup)-1)]
+    return uid
+
 def gen_fname(ext='.md', n_chars=8):
     random.seed()
 
@@ -289,6 +308,7 @@ def initialize_post(fpath, title='Untitled'):
         fp.write('DATE_CREATED: %s\n' % now_str)
         fp.write('DATE_MODIFIED: %s\n' % now_str)
         fp.write('TAGS: []\n')
+        fp.write('UNIQUE_ID: %s\n' % gen_unique_id())
         fp.write('---\n')
         fp.write('\n')
 

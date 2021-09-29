@@ -58,8 +58,8 @@ def print_columns(fnames):
         print(line)
         fnames = fnames[column_quantity:]
 
-def terminal_link(url, text):
-    return '\x1B]8;;file://%s\x1B\\%s\x1B]8;;\x1B\\' % (url, text)
+def terminal_link_file(fpath, text):
+    return '\x1B]8;;file://%s\x1B\\%s\x1B]8;;\x1B\\' % (fpath, text)
 
 def perform_ls(limit=16):
     database = db_load()
@@ -88,7 +88,7 @@ def perform_ls(limit=16):
         if not ltext or ltext == 'Untitled':
             ltext = fname
 
-        print(terminal_link(database[fname]['fpath'], ltext))
+        print(terminal_link_file(database[fname]['fpath'], ltext))
         #print('    ', fname)
 
 def perform_ls2(limit, tags=[]):
@@ -134,6 +134,18 @@ def perform_ls2(limit, tags=[]):
 # main
 #------------------------------------------------------------------------------
 
+def usage():
+    print('kb ls            list files in clickable column')
+    print('kb ls2           list files date menu')
+    print('kb new           create new file')
+    print('kb #tag          search for tag')
+    print('kb update        refresh the database if needed')
+    print('kb forceupdate   refresh the database')
+    print('kb rfm <file>    read front matter')
+    print('kb forget        clear the database')
+    print('kb j             create/view today\'s journal')
+    print('kb nodate        show files without create date')
+
 if __name__ == '__main__':
     cmd = ''
     if sys.argv[1:]:
@@ -163,6 +175,7 @@ if __name__ == '__main__':
     elif cmd == 'rfm':
         front_matter = read_front_matter(arg0)
         print(front_matter)
+
     elif cmd == 'rm':
         src = arg0
         dst = os.path.join('/tmp', src)
@@ -198,9 +211,71 @@ if __name__ == '__main__':
         print('opening %s' % fpath)
         edit_file(fpath, 'gvim')
 
+    elif cmd == 'test1':
+        # show files without metadata
+        fnames = [x for x in os.listdir(PATH_KB) if (x.endswith('.md') or x.endswith('.txt'))]
+        fpaths = [os.path.join(PATH_KB, x) for x in fnames]
+        for fpath in fpaths:
+        #for fpath in ['18al.md']:
+            fmatter = read_front_matter(fpath)
+            if not 'UNIQUE_ID' in fmatter:
+                set_front_matter_uid(fpath)
+#            if not 'DATE_CREATED' in fmatter:
+#                set_front_matter_date_created(fpath, epochToISO8601(get_date_created(fpath)))
+#            if not 'DATE_MODIFIED' in fmatter:
+#                set_front_matter_date_modified(fpath, epochToISO8601(get_date_edited(fpath)))
+
+    elif cmd == 'test2':
+        # show files with old style metadata
+        fnames = [x for x in os.listdir(PATH_KB) if (x.endswith('.md') or x.endswith('.txt'))]
+        fpaths = [os.path.join(PATH_KB, x) for x in fnames]
+        for fpath in fpaths:
+            data = None
+            with open(fpath) as fp:
+                data = fp.read()
+                while data.endswith(' ') or data.endswith('\n'):
+                    data = data[0:-1]
+                if not data.endswith('-->'):
+                    continue
+                mark = data.rfind('<!--')
+                front_matter = data[mark:]
+                print(fpath)
+                print('OLD FRONT MATTER:')
+                print(front_matter)
+
+                lines = front_matter.split('\n')
+                lines = [l.strip() for l in lines]
+                lines = [l.replace('<!--', '--') for l in lines]
+                lines = [l.replace('-->', '--') for l in lines]
+                for i in range(len(lines)):
+                    if lines[i].startswith('TAGS: '):
+                        tmp = lines[i][6:]
+                        if '#' in tmp:
+                            tmp = tmp.replace('#', '')
+                        if not ',' in tmp:
+                            tmp = tmp.replace(' ', ',')
+                        if '[' in tmp:
+                            lines[i] = 'TAGS: %s' % tmp
+                        else:
+                            lines[i] = 'TAGS: [%s]' % tmp
+                        break
+                front_matter = '\n'.join(lines)
+                print('NEW FRONT MATTER:')
+                print(front_matter)
+
+            data = data[0:mark]
+
+            with open(fpath, 'w') as fp:
+                fp.write(front_matter)
+                fp.write('')
+                fp.write(data)
+
     # assume it's a filename
+    elif not cmd:
+        usage()
     else:
         fname = cmd
+        assert fname
         if not (fname.endswith('.md') or fname.endswith('.txt')):
             fname = fname + '.md'
         if os.path.exists(fname):
