@@ -27,6 +27,8 @@ database = {}
 #            }
 # }
 
+old_date = 946702800.0 # datetime.datetime(2000, 1, 1).timestamp()
+
 #------------------------------------------------------------------------------
 # time conversion
 #------------------------------------------------------------------------------
@@ -166,18 +168,23 @@ def get_title(fname):
 # returns:
 #    time, epoch convention, type float
 def get_date_created(fname):
+    # PRIORITY #1: frontmatter
+    front_matter = read_front_matter(fname)
+    date_created = front_matter.get('DATE_CREATED')
+    if date_created:
+        return ISO8601ToEpoch(date_created)
+
     with open(fname, 'r') as fp:
         data = fp.read()
 
-    # frontmatter has highest priority
-    m = re.search(r'DATE_CREATED: (\d\d\d\d-\d\d-\d\d)', data)
-    if m:
-        return ISO8601ToEpoch(m.group(1))
-
     # else, filesystem and log entries battle
     #oldest = os.path.getctime(fname);
+    entries = re.findall(r'>Posted (\d\d\d\d-\d\d-\d\d)</div>', data)
+    if not entries:
+        return old_date
+
     oldest = os.stat(fname).st_birthtime
-    for datestr in re.findall(r'>Posted (\d\d\d\d-\d\d-\d\d)</div>', data):
+    for datestr in entries:
         tmp = ISO8601ToEpoch(datestr)
         if oldest == None or tmp < oldest:
             oldest = tmp
@@ -188,22 +195,27 @@ def get_date_edited(fname):
     with open(fname, 'r') as fp:
         data = fp.read()
 
-    # are there a series of html log entries?
-    newest = None
-    for datestr in re.findall(r'>Posted (\d\d\d\d-\d\d-\d\d)</div>', data):
-        tmp = ISO8601ToEpoch(datestr)
-        if newest == None or tmp > newest:
-            newest = tmp
-    if newest:
+    # PRIORITY #1: are there a series of html log entries?
+    entries = re.findall(r'>Posted (\d\d\d\d-\d\d-\d\d)</div>', data)
+    if entries:
+        newest = old_date
+        for datestr in entries:
+            newest = max(newest, ISO8601ToEpoch(datestr))
         return newest
 
-    # if the file is marked, either in frontmatter or html comments
-    m = re.search(r'DATE_MODIFIED: (\d\d\d\d-\d\d-\d\d)', data)
-    if m:
-        return ISO8601ToEpoch(m.group(1))
+    # PRIORITY #2: an explicit "DATE_MODIFIED"
+    front_matter = read_front_matter(fname)
+    date_modified = front_matter.get('DATE_MODIFIED')
+    if date_modified:
+        return ISO8601ToEpoch(date_modified)
+
+    # PRIORITY #3: an explicit "DATE_CREATED"
+    date_created = front_matter.get('DATE_CREATED')
+    if date_created:
+        return ISO8601ToEpoch(date_created)
 
     # else, the edit date is the file modification time
-    return os.path.getmtime(fname)
+    return old_date
 
 #------------------------------------------------------------------------------
 # database handling
