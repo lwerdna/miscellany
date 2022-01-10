@@ -4,6 +4,7 @@ install:
 	if [ ! -f "${HOME}/bin/decrypt" ]; then ln -s `pwd`/decrypt.py ${HOME}/bin/decrypt; fi;
 	if [ ! -f "${HOME}/bin/fdump" ]; then ln -s `pwd`/fdump.py ${HOME}/bin/fdump; fi;
 	if [ ! -f "${HOME}/bin/cpscreenshot" ]; then ln -s `pwd`/cpscreenshot.py ${HOME}/bin/cpscreenshot; fi;
+	if [ ! -f "${HOME}/bin/mvscreenshot" ]; then ln -s `pwd`/mvscreenshot.py ${HOME}/bin/mvscreenshot; fi;
 	if [ ! -f "${HOME}/bin/cpdownload" ]; then ln -s `pwd`/cpdownload.py ${HOME}/bin/cpdownload; fi;
 	if [ ! -f "${HOME}/bin/searchbin" ]; then ln -s `pwd`/searchbin.py ${HOME}/bin/searchbin; fi;
 	if [ ! -f "${HOME}/bin/replace_in_files" ]; then ln -s `pwd`/replace_in_files.py ${HOME}/bin/replace_in_files; fi;
@@ -27,6 +28,7 @@ install:
 	if [ ! -f "${HOME}/bin/kbfltk" ]; then ln -s `pwd`/kbfltk.py ${HOME}/bin/kbfltk; fi;
 	if [ ! -f "${HOME}/bin/pyputprints" ]; then ln -s `pwd`/pyputprints.py ${HOME}/bin/pyputprints; fi;
 	if [ ! -f "${HOME}/bin/openpickle" ]; then ln -s `pwd`/openpickle.py ${HOME}/bin/openpickle; fi;
+	if [ ! -f "${HOME}/bin/assetize" ]; then ln -s `pwd`/assetize.py ${HOME}/bin/assetize; fi;
 
 uninstall:
 	if [ -f "${HOME}/bin/ftime" ]; then rm ${HOME}/bin/ftime; fi;
@@ -34,6 +36,7 @@ uninstall:
 	if [ -f "${HOME}/bin/decrypt" ]; then rm ${HOME}/bin/decrypt; fi;
 	if [ -f "${HOME}/bin/fdump" ]; then rm ${HOME}/bin/fdump; fi;
 	if [ -f "${HOME}/bin/cpscreenshot" ]; then rm ${HOME}/bin/cpscreenshot; fi;
+	if [ -f "${HOME}/bin/mvscreenshot" ]; then rm ${HOME}/bin/mvscreenshot; fi;
 	if [ -f "${HOME}/bin/cpdownload" ]; then rm ${HOME}/bin/cpdownload; fi;
 	if [ -f "${HOME}/bin/searchbin" ]; then rm ${HOME}/bin/searchbin; fi;
 	if [ -f "${HOME}/bin/replace_in_files" ]; then rm ${HOME}/bin/replace_in_files; fi;
@@ -57,4 +60,5 @@ uninstall:
 	if [ -f "${HOME}/bin/kbfltk" ]; then rm ${HOME}/bin/kbfltk; fi;
 	if [ -f "${HOME}/bin/pyputprints" ]; then rm ${HOME}/bin/pyputprints; fi;
 	if [ -f "${HOME}/bin/openpickle" ]; then rm ${HOME}/bin/openpickle; fi;
+	if [ -f "${HOME}/bin/assetize" ]; then rm ${HOME}/bin/assetize; fi;
 
