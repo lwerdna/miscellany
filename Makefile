@@ -29,6 +29,7 @@ install:
 	if [ ! -f "${HOME}/bin/pyputprints" ]; then ln -s `pwd`/pyputprints.py ${HOME}/bin/pyputprints; fi;
 	if [ ! -f "${HOME}/bin/openpickle" ]; then ln -s `pwd`/openpickle.py ${HOME}/bin/openpickle; fi;
 	if [ ! -f "${HOME}/bin/assetize" ]; then ln -s `pwd`/assetize.py ${HOME}/bin/assetize; fi;
+	if [ ! -f "${HOME}/bin/git-conflict-marker-split" ]; then ln -s `pwd`/git-conflict-marker-split.py ${HOME}/bin/git-conflict-marker-split; fi;
 
 uninstall:
 	if [ -f "${HOME}/bin/ftime" ]; then rm ${HOME}/bin/ftime; fi;
@@ -61,4 +62,5 @@ uninstall:
 	if [ -f "${HOME}/bin/pyputprints" ]; then rm ${HOME}/bin/pyputprints; fi;
 	if [ -f "${HOME}/bin/openpickle" ]; then rm ${HOME}/bin/openpickle; fi;
 	if [ -f "${HOME}/bin/assetize" ]; then rm ${HOME}/bin/assetize; fi;
+	if [ -f "${HOME}/bin/git-conflict-marker-split" ]; then rm ${HOME}/bin/git-conflict-marker-split; fi;
 
