@@ -2,17 +2,11 @@
 
 # KB (knowledge base) library, used by CLI and GUI interfaces
 
-import os
-import re
-import sys
-import time
-import random
-import shutil
-import pickle
+import os, re, sys, time, random, shutil, json
 from termcolor import cprint
 
 PATH_KB = os.path.join(os.environ['PATH_KB'])
-PATH_KBDATA = os.path.join(PATH_KB, 'kbdata.bin')
+PATH_KBDATA = os.path.join(PATH_KB, 'kbdata.json')
 os.chdir(PATH_KB)
 database = {}
 # schema:
@@ -46,6 +40,32 @@ def ISO8601ToEpoch(isoString: str):
     time_struct = time.strptime(isoString, '%Y-%m-%d')
     epoch = time.mktime(time_struct)
     return epoch
+
+def pretty_time(epoch):
+    day_of_month = time.strftime('%d', time.localtime(epoch))
+    while day_of_month.startswith('0'):
+        day_of_month = day_of_month[1:]
+    if day_of_month.endswith('1'): day_of_month += 'st'
+    elif day_of_month.endswith('2'): day_of_month += 'nd'
+    elif day_of_month.endswith('3'): day_of_month += 'rd'
+    else: day_of_month += 'th'
+    return day_of_month + time.strftime(' %B %Y', time.localtime(epoch))
+
+def pretty_time_ago(epoch):
+	now = time.mktime(time.localtime(None))
+	sec = now - epoch
+
+	years_ago = sec / (365*24*3600)
+	months_ago = sec / (30*24*3600)
+	weeks_ago = sec / (7*24*3600)
+	days_ago = sec / (24*3600)
+	hours_ago = sec / 3600
+
+	if years_ago >= 1: return '%.1f years' % years_ago
+	if months_ago >= 1: return '%.1f months' % months_ago
+	if weeks_ago >= 1: return '%.1f weeks' % weeks_ago
+	if days_ago >= 1: return '%.1f days' % days_ago
+	return 'today'
 
 #------------------------------------------------------------------------------
 # front matter
@@ -191,8 +211,10 @@ def get_date_created(fname):
     return oldest
 
 # attempt to infer when file was modified
-def get_date_edited(fname):
-    with open(fname, 'r') as fp:
+# returns:
+#     time, epoch convention, float type
+def get_date_edited(fpath):
+    with open(fpath, 'r') as fp:
         data = fp.read()
 
     # PRIORITY #1: are there a series of html log entries?
@@ -204,7 +226,7 @@ def get_date_edited(fname):
         return newest
 
     # PRIORITY #2: an explicit "DATE_MODIFIED"
-    front_matter = read_front_matter(fname)
+    front_matter = read_front_matter(fpath)
     date_modified = front_matter.get('DATE_MODIFIED')
     if date_modified:
         return ISO8601ToEpoch(date_modified)
@@ -224,14 +246,14 @@ def get_date_edited(fname):
 # load kb database from disk, return dictionary
 def db_load():
     global PATH_KBDATA
-    with open(PATH_KBDATA, 'rb') as fp:
-        return pickle.load(fp)
+    with open(PATH_KBDATA, 'r') as fp:
+        return json.loads(fp.read())
 
 # save kb database to disk
 def db_save(database):
     global PATH_KBDATA
-    with open(PATH_KBDATA, 'wb') as fp:
-        pickle.dump(database, fp)
+    with open(PATH_KBDATA, 'w') as fp:
+        fp.write(json.dumps(database, indent=4))
 
 # update kb database on disk with newly parsed file info
 def db_update(force=False):
@@ -318,9 +340,10 @@ def initialize_post(fpath, title='Untitled'):
         fp.write('---\n')
         fp.write('TITLE: %s\n' % title)
         fp.write('DATE_CREATED: %s\n' % now_str)
-        fp.write('DATE_MODIFIED: %s\n' % now_str)
+        #fp.write('DATE_MODIFIED: %s\n' % now_str)
         fp.write('TAGS: []\n')
         fp.write('UNIQUE_ID: %s\n' % gen_unique_id())
+        fp.write('typora-copy-images-to: ./assets\n')
         fp.write('---\n')
         fp.write('\n')
 

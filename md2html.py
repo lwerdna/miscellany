@@ -6,7 +6,7 @@ import markdown # pip install Markdown, https://github.com/Python-Markdown/markd
 title = 'UNTITLED'
 
 if sys.argv[2:]:
-	title = sys.argv[2]
+    title = sys.argv[2]
 
 header = '''
 <!DOCTYPE html>
@@ -23,14 +23,38 @@ header = '''
         padding: 2px;
       }
       code {
-        background-color: #E0E0E0;
+        background-color: #ccffff;
       }
-      pre {
-        background-color: #E0E0E0;
-        padding: 4px;
+      pre code {
+        background-color: inherit;
+      }
+      pre.plain {
+      }
+      pre.code {
+        margin-left: 1.5em;
+        margin-right: 1.5em;
+        border: 1px dotted;
+        padding-top: 5px;
+        padding-left: 5px;
+        padding-bottom: 5px;
+        background-color: #ccffff;
+      }
+      pre.dialogue {
+        margin-left: 1.5em;
+        margin-right: 1.5em;
+        border: 1px dotted;
+        padding-top: 5px;
+        padding-left: 5px;
+        padding-bottom: 5px;
+        background-color: #ffddff;
       }
       blockquote {
         background-color: pink;
+      }
+      img.link {
+        border-width: 1px;
+        border-style: solid;
+        border-color: blue;
       }
     </style>
   </head>
@@ -44,7 +68,7 @@ footer = '''
 
 infile = sys.argv[1]
 with open(infile) as fp:
-	md = fp.read()
+    md = fp.read()
 
 # kinda equivalent to command line invocation: markdown2 -x fenced-code-blocks -x highlightjs-lang -x tables ./index.md
 sys.stdout.write(header)

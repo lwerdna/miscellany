@@ -3,6 +3,8 @@
 # CLI interface to kb (knowledge base)
 
 import time
+import json
+
 from kblib import *
 
 #------------------------------------------------------------------------------
@@ -61,18 +63,8 @@ def print_columns(fnames):
 def terminal_link_file(fpath, text):
     return '\x1B]8;;file://%s\x1B\\%s\x1B]8;;\x1B\\' % (fpath, text)
 
-def perform_ls(limit=16):
+def perform_ls(limit=8):
     database = db_load()
-
-    def pretty_time(epoch):
-        day_of_month = time.strftime('%d', time.localtime(epoch))
-        while day_of_month.startswith('0'):
-            day_of_month = day_of_month[1:]
-        if day_of_month.endswith('1'): day_of_month += 'st'
-        elif day_of_month.endswith('2'): day_of_month += 'nd'
-        elif day_of_month.endswith('3'): day_of_month += 'rd'
-        else: day_of_month += 'th'
-        return day_of_month + time.strftime(' %B %Y', time.localtime(epoch))
 
     current = None
     for fname in sorted(database, key=lambda k: database[k]['date_edited'], reverse=True)[0:limit]:
@@ -84,11 +76,12 @@ def perform_ls(limit=16):
             #cprint(pm, 'white', 'on_blue')
             current = date
 
-        ltext = database[fname]['title']
-        if not ltext or ltext == 'Untitled':
-            ltext = fname
+        title = database[fname]['title']
+        if not title or title == 'Untitled':
+            print(terminal_link_file(database[fname]['fpath'], fname))
+        else:
+            print(terminal_link_file(database[fname]['fpath'], title) + (' (%s)' % fname))
 
-        print(terminal_link_file(database[fname]['fpath'], ltext))
         #print('    ', fname)
 
 def perform_ls2(limit, tags=[]):
@@ -209,7 +202,8 @@ if __name__ == '__main__':
                 print('appending %s' % fpath_templ)
                 open(fpath, 'a+').write(open(fpath_templ, 'r').read())
         print('opening %s' % fpath)
-        edit_file(fpath, 'gvim')
+        #edit_file(fpath, 'gvim')
+        edit_file(fpath)
 
     elif cmd == 'test1':
         # show files without metadata

@@ -97,15 +97,33 @@ def inp_title_cb(widget):
 	title = widget.value()
 	print('set %s title to: %s' % (fname, title))
 	kblib.set_front_matter_title(fname, title)
-	db[fname]['TITLE'] = title
+	db[fname]['title'] = title
 	kblib.db_save(db)
 	scroll.redraw()
 
+# date is like '2019-11-18'
 def inp_date_created_cb(widget):
 	print('set new date_created: %s' % widget.value())
+	fname = inp_fname.value()
+	assert fname in db
+	date = widget.value()
+	print('set %s date created to: %s' % (fname, date))
+	kblib.set_front_matter_date_created(fname, date)
+	db[fname]['date_created'] = kblib.ISO8601ToEpoch(date)
+	kblib.db_save(db)
+	scroll.redraw()
 
+# date is like '2019-11-18'
 def inp_date_edited_cb(widget):
 	print('set new date_edited: %s' % widget.value())
+	fname = inp_fname.value()
+	assert fname in db
+	date = widget.value()
+	print('set %s date edited to: %s' % (fname, date))
+	kblib.set_front_matter_date_edited(fname, date)
+	db[fname]['date_edited'] = kblib.ISO8601ToEpoch(date)
+	kblib.db_save(db)
+	scroll.redraw()
 
 def inp_tags_cb(widget):
 	fname = inp_fname.value()
@@ -257,12 +275,12 @@ class MarkdownFile(Fl_Button):
 	def draw(self):
 		info = db[self.fname]
 
-		fname = os.path.basename(info['fpath'])
 		fl_draw_box(FL_SHADOW_BOX, self.x(), self.y(), self.w(), self.h(), self.color)
 		(center_x, center_y) = (self.x() + self.w()//2, self.y() + self.h()//2)
 
 		# draw title
-		draw_text_centered(fname, center_x, center_y)
+		tmp = info['title'] if info['title'] != 'Untitled' else info['fname']
+		draw_text_centered(tmp, center_x, center_y)
 
 		# draw file size
 		draw_text_botleft(size_str(info['fsize']), self.x(), self.y()+self.h(), 2, 4)

@@ -68,7 +68,6 @@ if __name__ == '__main__':
 	# list of bytes
 	elif len(sys.argv)>2:
 		platName = sys.argv[1]
-		archName = platName.split('-')[1]
 		bytesList = sys.argv[2:]
 
 		# parse byte arguments
@@ -85,7 +84,7 @@ if __name__ == '__main__':
 		bv = binaryninja.BinaryViewType.get_view_of_file(fpath)
 		bv.update_analysis_and_wait()
 
-	print(RED)
+	#print(RED)
 	for func in bv.functions:
 		prototype = ''.join(map(lambda x: x.text, func.type_tokens))
 		print('')
@@ -95,6 +94,10 @@ if __name__ == '__main__':
 			#print("\t{0}".format(block))
 			for insn in block:
 				#traverse_IL(insn, 0)
+				print('__str__():')
+				print(str(insn))
+				print('')
+				print('il2str():')
 				print(il2str(insn))
-	print(NORMAL)
+	#print(NORMAL)
 

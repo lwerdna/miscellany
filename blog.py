@@ -61,10 +61,10 @@ def attach(src, randomize=False):
 	shutil.copyfile(src, dst)
 	return os.path.join('./blog_attachments', fname)
 
-def gen_fname_post(title=''):
+def gen_fname_post(extension, title=''):
 	i = 2
 	time = get_iso8601_time()
-	fpath = os.path.join(BLOG_LOC, time + title + '.md')
+	fpath = os.path.join(BLOG_LOC, time + title + extension)
 	while os.path.exists(fpath):
 		fpath = os.path.join(BLOG_LOC, '%s_%02d.md' % (time,i))
 		i += 1
@@ -82,7 +82,7 @@ def init_post_from_image(fpath):
 		get_program_output(['mogrify', '-strip', '-resize', size_str, fpath_prev])
 
 	# generate post
-	fpath_post = gen_fname_post()
+	fpath_post = gen_fname_post('.md')
 	with open(fpath_post, 'w') as fp:
 		fp.write("# Untitled\n\n")
 		fp.write("before\n\n");
@@ -98,7 +98,7 @@ def init_post_from_attach(fpath):
 	fpath = attach(fpath)
 
 	# generate post
-	fpath_post = gen_fname_post()
+	fpath_post = gen_fname_post('.md')
 	with open(fpath_post, 'w') as fp:
 		fp.write("# Untitled\n\n")
 		fp.write("[original file name %s](%s)\n\n" % (os.path.split(fpath)[1], fpath))
@@ -120,12 +120,19 @@ if __name__ == '__main__':
 	elif sys.argv[1] == 'ls':
 		os.system('ls -l '+BLOG_LOC)
 
-	elif sys.argv[1] == 'new':
+	elif sys.argv[1] in ['new', 'md']:
 		os.chdir(BLOG_LOC)
-		fpath = gen_fname_post()
+		fpath = gen_fname_post('.md')
 		print('creating: %s' % fpath)
 		os.system('touch %s' % fpath)
 		os.system('open -a typora %s' % fpath)
+
+	elif sys.argv[1] in ['newtxt', 'txt']:
+		os.chdir(BLOG_LOC)
+		fpath = gen_fname_post('.txt')
+		print('creating: %s' % fpath)
+		os.system('touch %s' % fpath)
+		os.system('open -a macvim %s' % fpath)
 
 	elif sys.argv[1] == 'compile':
 		entries = os.listdir(BLOG_LOC)

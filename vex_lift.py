@@ -33,11 +33,15 @@ if __name__ == '__main__':
 	# bytes list
 	bytesList = sys.argv[2:]
 	data = b''.join(list(map(lambda x: int(x,16).to_bytes(1,'big'), bytesList)))
+
 	proj = angr.load_shellcode(data, arch=platName.lower())
+	# print disassembly
 	block0 = proj.factory.block(0)
 	block0.pp()
+	# print IL
 	vex = proj.factory.block(0).vex
 	vex.pp()
+
 	#print(RED)
 	#print(NORMAL)
 
