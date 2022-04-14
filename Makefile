@@ -15,6 +15,7 @@ install:
 	if [ ! -f "${HOME}/bin/pyleetcode" ]; then ln -s `pwd`/pyleetcode.py ${HOME}/bin/pyleetcode; fi;
 	if [ ! -f "${HOME}/bin/pyquick" ]; then ln -s `pwd`/pyquick.py ${HOME}/bin/pyquick; fi;
 	if [ ! -f "${HOME}/bin/pytimeit" ]; then ln -s `pwd`/pytimeit.py ${HOME}/bin/pytimeit; fi;
+	if [ ! -f "${HOME}/bin/ctimeit" ]; then ln -s `pwd`/ctimeit.py ${HOME}/bin/ctimeit; fi;
 	if [ ! -f "${HOME}/bin/md2html" ]; then ln -s `pwd`/md2html.py ${HOME}/bin/md2html; fi;
 	if [ ! -f "${HOME}/bin/ftags" ]; then ln -s `pwd`/ftags.py ${HOME}/bin/ftags; fi;
 	if [ ! -f "${HOME}/bin/mdtags" ]; then ln -s `pwd`/mdtags.py ${HOME}/bin/mdtags; fi;
@@ -47,6 +48,7 @@ uninstall:
 	if [ -f "${HOME}/bin/pyleetcode" ]; then rm ${HOME}/bin/pyleetcode; fi;
 	if [ -f "${HOME}/bin/pyquick" ]; then rm ${HOME}/bin/pyquick; fi;
 	if [ -f "${HOME}/bin/pytimeit" ]; then rm ${HOME}/bin/pytimeit; fi;
+	if [ -f "${HOME}/bin/ctimeit" ]; then rm ${HOME}/bin/ctimeit; fi;
 	if [ -f "${HOME}/bin/md2html" ]; then rm ${HOME}/bin/md2html; fi;
 	if [ -f "${HOME}/bin/ftags" ]; then rm ${HOME}/bin/ftags; fi;
 	if [ -f "${HOME}/bin/mdtags" ]; then rm ${HOME}/bin/mdtags; fi;
