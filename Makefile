@@ -22,8 +22,6 @@ install:
 	if [ ! -f "${HOME}/bin/binja_lift" ]; then ln -s `pwd`/binja_lift.py ${HOME}/bin/binja_lift; fi;
 	if [ ! -f "${HOME}/bin/binja_tlinfo" ]; then ln -s `pwd`/binja_tlinfo.py ${HOME}/bin/binja_tlinfo; fi;
 	if [ ! -f "${HOME}/bin/disassemble" ]; then ln -s `pwd`/disassemble.py ${HOME}/bin/disassemble; fi;
-	if [ ! -f "${HOME}/bin/x86repl" ]; then ln -s `pwd`/x86repl.py ${HOME}/bin/x86repl; fi;
-	if [ ! -f "${HOME}/bin/arm64repl" ]; then ln -s `pwd`/arm64repl.py ${HOME}/bin/arm64repl; fi;
 	if [ ! -f "${HOME}/bin/kb" ]; then ln -s `pwd`/kb.py ${HOME}/bin/kb; fi;
 	if [ ! -f "${HOME}/bin/kbfltk" ]; then ln -s `pwd`/kbfltk.py ${HOME}/bin/kbfltk; fi;
 	if [ ! -f "${HOME}/bin/pyputprints" ]; then ln -s `pwd`/pyputprints.py ${HOME}/bin/pyputprints; fi;
@@ -56,8 +54,6 @@ uninstall:
 	if [ -f "${HOME}/bin/binja_lift" ]; then rm ${HOME}/bin/binja_lift; fi;
 	if [ -f "${HOME}/bin/binja_tlinfo" ]; then rm ${HOME}/bin/binja_tlinfo; fi;
 	if [ -f "${HOME}/bin/disassemble" ]; then rm ${HOME}/bin/disassemble; fi;
-	if [ -f "${HOME}/bin/x86repl" ]; then rm ${HOME}/bin/x86repl; fi;
-	if [ -f "${HOME}/bin/arm64repl" ]; then rm ${HOME}/bin/arm64repl; fi;
 	if [ -f "${HOME}/bin/kb" ]; then rm ${HOME}/bin/kb; fi;
 	if [ -f "${HOME}/bin/kbfltk" ]; then rm ${HOME}/bin/kbfltk; fi;
 	if [ -f "${HOME}/bin/pyputprints" ]; then rm ${HOME}/bin/pyputprints; fi;
