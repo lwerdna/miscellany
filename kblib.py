@@ -95,7 +95,7 @@ def read_front_matter(fpath):
         line = lines[i].strip()
         if line=='---' or line=='-->':
             break
-        m = re.match('^\s*(\w+)\s*:\s*(.*)$', line)
+        m = re.match('^\s*([\w-]+)\s*:\s*(.*)$', line)
         assert m, 'malformed front matter: %s' % line
         (var_name, var_val) = m.group(1,2)
         if var_val.startswith('['):

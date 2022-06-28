@@ -26,19 +26,18 @@ for (inp, expected) in tests:
         assert False
 '''
 
-fpath = os.path.join(os.environ['HOME'], 'repos/lwerdna/leetcode/py')
+fname = 'go.py'
 if sys.argv[1:]:
-	prob_num = sys.argv[1]
-	assert re.match(r'^\d+$', prob_num)
-	fpath = os.path.join(fpath, prob_num + '.py')
-else:
-	fpath = os.path.join(fpath, 'scratch.py')
+    fname = sys.argv[1]
 
-if not os.path.exists(fpath):
-	with open(fpath, 'w') as fp:
-		fp.write(boilerplate)
-	os.system('chmod +x %s' % fpath)
+if os.path.exists(fname):
+    print('file exists')
+    sys.exit(-1)
 
-#os.system('open -a geany ' + fpath)
-os.system('open -a macvim ' + fpath)
+with open(fname, 'w') as fp:
+	fp.write(boilerplate)
+os.system('chmod +x %s' % fname)
+
+#os.system('open -a geany ' + fname)
+os.system('open -a macvim ' + fname)
 
