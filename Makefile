@@ -31,6 +31,7 @@ install:
 	if [ ! -f "${HOME}/bin/git-conflict-marker-split" ]; then ln -s `pwd`/git-conflict-marker-split.py ${HOME}/bin/git-conflict-marker-split; fi;
 	if [ ! -f "${HOME}/bin/lslog" ]; then ln -s `pwd`/lslog.py ${HOME}/bin/lslog; fi;
 	if [ ! -f "${HOME}/bin/makeurl" ]; then ln -s `pwd`/makeurl.py ${HOME}/bin/makeurl; fi;
+	if [ ! -f "${HOME}/bin/grepbin" ]; then ln -s `pwd`/grepbin.py ${HOME}/bin/grepbin; fi;
 
 uninstall:
 	if [ -f "${HOME}/bin/ftime" ]; then rm ${HOME}/bin/ftime; fi;
@@ -65,4 +66,5 @@ uninstall:
 	if [ -f "${HOME}/bin/git-conflict-marker-split" ]; then rm ${HOME}/bin/git-conflict-marker-split; fi;
 	if [ -f "${HOME}/bin/lslog" ]; then rm ${HOME}/bin/lslog; fi;
 	if [ -f "${HOME}/bin/makeurl" ]; then rm ${HOME}/bin/makeurl; fi;
+	if [ -f "${HOME}/bin/grepbin" ]; then rm ${HOME}/bin/grepbin; fi;
 
