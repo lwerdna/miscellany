@@ -32,7 +32,8 @@ install:
 	if [ ! -f "${HOME}/bin/lslog" ]; then ln -s `pwd`/lslog.py ${HOME}/bin/lslog; fi;
 	if [ ! -f "${HOME}/bin/makeurl" ]; then ln -s `pwd`/makeurl.py ${HOME}/bin/makeurl; fi;
 	if [ ! -f "${HOME}/bin/grepbin" ]; then ln -s `pwd`/grepbin.py ${HOME}/bin/grepbin; fi;
-	if [ ! -f "${HOME}/bin/getcfg" ]; then ln -s `pwd`/getcfg.py ${HOME}/bin/getcfg; fi;
+	if [ ! -f "${HOME}/bin/binja-cfg-mermaid" ]; then ln -s `pwd`/binja-cfg-mermaid.py ${HOME}/bin/binja-cfg-mermaid; fi;
+	if [ ! -f "${HOME}/bin/binja-cfg-dot" ]; then ln -s `pwd`/binja-cfg-dot.py ${HOME}/bin/binja-cfg-dot; fi;
 
 uninstall:
 	if [ -f "${HOME}/bin/ftime" ]; then rm ${HOME}/bin/ftime; fi;
@@ -68,5 +69,6 @@ uninstall:
 	if [ -f "${HOME}/bin/lslog" ]; then rm ${HOME}/bin/lslog; fi;
 	if [ -f "${HOME}/bin/makeurl" ]; then rm ${HOME}/bin/makeurl; fi;
 	if [ -f "${HOME}/bin/grepbin" ]; then rm ${HOME}/bin/grepbin; fi;
-	if [ -f "${HOME}/bin/getcfg" ]; then rm ${HOME}/bin/getcfg; fi;
+	if [ -f "${HOME}/bin/binja-cfg-mermaid" ]; then rm ${HOME}/bin/binja-cfg-mermaid; fi;
+	if [ -f "${HOME}/bin/binja-cfg-dot" ]; then rm ${HOME}/bin/binja-cfg-dot; fi;
 
