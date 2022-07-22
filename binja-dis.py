@@ -34,18 +34,31 @@ def usage():
     sys.exit(-1)
 
 if __name__ == '__main__':
-    if not sys.argv[2:]:
+    if not sys.argv[1:]:
         usage()
 
     # MODE: disassemble specified function in file
     if os.path.isfile(sys.argv[1]):
-        [fpath, symname] = sys.argv[1:3]
+        fpath = sys.argv[1]
+
         with binaryninja.open_view(fpath) as bview:
-            func = bview.get_functions_by_name(symname)[0]
-            print_function_disasm(func)
+            if sys.argv[2:]:
+                symname = sys.argv[2]
+                funcs = bview.get_functions_by_name(symname)
+            else:
+                funcs = list(bview.functions)
+
+            for (i, func) in enumerate(funcs):
+                print(func)
+                print_function_disasm(func)
+                if i<len(funcs)-1:
+                    print()
 
     # MODE: disassemble bytes given on the command line
     else:
+        if not sys.argv[2:]:
+            usage()
+
         arch_name = sys.argv[1]
         byte_list = sys.argv[2:]
 
