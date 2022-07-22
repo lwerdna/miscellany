@@ -1,4 +1,5 @@
 install:
+	if [ ! -f "${HOME}/bin/diff-dir" ]; then ln -s `pwd`/diff-dir.py ${HOME}/bin/diff-dir; fi;
 	if [ ! -f "${HOME}/bin/ftime" ]; then ln -s `pwd`/ftime.py ${HOME}/bin/ftime; fi;
 	if [ ! -f "${HOME}/bin/getpics" ]; then ln -s `pwd`/getpics.py ${HOME}/bin/getpics; fi;
 	if [ ! -f "${HOME}/bin/decrypt" ]; then ln -s `pwd`/decrypt.py ${HOME}/bin/decrypt; fi;
@@ -37,6 +38,7 @@ install:
 	if [ ! -f "${HOME}/bin/binja-cfg-dot" ]; then ln -s `pwd`/binja-cfg-dot.py ${HOME}/bin/binja-cfg-dot; fi;
 
 uninstall:
+	if [ -f "${HOME}/bin/diff-dir" ]; then rm ${HOME}/bin/diff-dir; fi;
 	if [ -f "${HOME}/bin/ftime" ]; then rm ${HOME}/bin/ftime; fi;
 	if [ -f "${HOME}/bin/getpics" ]; then rm ${HOME}/bin/getpics; fi;
 	if [ -f "${HOME}/bin/decrypt" ]; then rm ${HOME}/bin/decrypt; fi;
