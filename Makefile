@@ -20,9 +20,6 @@ install:
 	if [ ! -f "${HOME}/bin/md2html" ]; then ln -s `pwd`/md2html.py ${HOME}/bin/md2html; fi;
 	if [ ! -f "${HOME}/bin/ftags" ]; then ln -s `pwd`/ftags.py ${HOME}/bin/ftags; fi;
 	if [ ! -f "${HOME}/bin/mdtags" ]; then ln -s `pwd`/mdtags.py ${HOME}/bin/mdtags; fi;
-	if [ ! -f "${HOME}/bin/binja_dis" ]; then ln -s `pwd`/binja_dis.py ${HOME}/bin/binja_dis; fi;
-	if [ ! -f "${HOME}/bin/binja_lift" ]; then ln -s `pwd`/binja_lift.py ${HOME}/bin/binja_lift; fi;
-	if [ ! -f "${HOME}/bin/binja_tlinfo" ]; then ln -s `pwd`/binja_tlinfo.py ${HOME}/bin/binja_tlinfo; fi;
 	if [ ! -f "${HOME}/bin/disassemble" ]; then ln -s `pwd`/disassemble.py ${HOME}/bin/disassemble; fi;
 	if [ ! -f "${HOME}/bin/kb" ]; then ln -s `pwd`/kb.py ${HOME}/bin/kb; fi;
 	if [ ! -f "${HOME}/bin/kbfltk" ]; then ln -s `pwd`/kbfltk.py ${HOME}/bin/kbfltk; fi;
@@ -33,6 +30,9 @@ install:
 	if [ ! -f "${HOME}/bin/lslog" ]; then ln -s `pwd`/lslog.py ${HOME}/bin/lslog; fi;
 	if [ ! -f "${HOME}/bin/makeurl" ]; then ln -s `pwd`/makeurl.py ${HOME}/bin/makeurl; fi;
 	if [ ! -f "${HOME}/bin/grepbin" ]; then ln -s `pwd`/grepbin.py ${HOME}/bin/grepbin; fi;
+	if [ ! -f "${HOME}/bin/binja-dis" ]; then ln -s `pwd`/binja-dis.py ${HOME}/bin/binja-dis; fi;
+	if [ ! -f "${HOME}/bin/binja-lift" ]; then ln -s `pwd`/binja-lift.py ${HOME}/bin/binja-lift; fi;
+	if [ ! -f "${HOME}/bin/binja-tlinfo" ]; then ln -s `pwd`/binja-tlinfo.py ${HOME}/bin/binja-tlinfo; fi;
 	if [ ! -f "${HOME}/bin/binja-cfg-mermaid" ]; then ln -s `pwd`/binja-cfg-mermaid.py ${HOME}/bin/binja-cfg-mermaid; fi;
 	if [ ! -f "${HOME}/bin/binja-cfg-dot" ]; then ln -s `pwd`/binja-cfg-dot.py ${HOME}/bin/binja-cfg-dot; fi;
 
@@ -58,9 +58,6 @@ uninstall:
 	if [ -f "${HOME}/bin/md2html" ]; then rm ${HOME}/bin/md2html; fi;
 	if [ -f "${HOME}/bin/ftags" ]; then rm ${HOME}/bin/ftags; fi;
 	if [ -f "${HOME}/bin/mdtags" ]; then rm ${HOME}/bin/mdtags; fi;
-	if [ -f "${HOME}/bin/binja_dis" ]; then rm ${HOME}/bin/binja_dis; fi;
-	if [ -f "${HOME}/bin/binja_lift" ]; then rm ${HOME}/bin/binja_lift; fi;
-	if [ -f "${HOME}/bin/binja_tlinfo" ]; then rm ${HOME}/bin/binja_tlinfo; fi;
 	if [ -f "${HOME}/bin/disassemble" ]; then rm ${HOME}/bin/disassemble; fi;
 	if [ -f "${HOME}/bin/kb" ]; then rm ${HOME}/bin/kb; fi;
 	if [ -f "${HOME}/bin/kbfltk" ]; then rm ${HOME}/bin/kbfltk; fi;
@@ -71,6 +68,9 @@ uninstall:
 	if [ -f "${HOME}/bin/lslog" ]; then rm ${HOME}/bin/lslog; fi;
 	if [ -f "${HOME}/bin/makeurl" ]; then rm ${HOME}/bin/makeurl; fi;
 	if [ -f "${HOME}/bin/grepbin" ]; then rm ${HOME}/bin/grepbin; fi;
+	if [ -f "${HOME}/bin/binja-dis" ]; then rm ${HOME}/bin/binja-dis; fi;
+	if [ -f "${HOME}/bin/binja-lift" ]; then rm ${HOME}/bin/binja-lift; fi;
+	if [ -f "${HOME}/bin/binja-tlinfo" ]; then rm ${HOME}/bin/binja-tlinfo; fi;
 	if [ -f "${HOME}/bin/binja-cfg-mermaid" ]; then rm ${HOME}/bin/binja-cfg-mermaid; fi;
 	if [ -f "${HOME}/bin/binja-cfg-dot" ]; then rm ${HOME}/bin/binja-cfg-dot; fi;
 

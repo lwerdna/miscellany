@@ -6,7 +6,7 @@ def block_id(bb):
     return 'b%d' % bb.index
 
 def block_label(bb):
-    lines = []
+    lines = [f'basic_block[{bb.index}]:']
     addr = bb.start
     for (toks, length) in bb:
         lines.append('%08X: %s' % (addr, ''.join([t.text for t in toks])))
