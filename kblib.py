@@ -166,6 +166,78 @@ def set_front_matter_date_modified(fname, date):
     write_front_matter(fpath, fm)
 
 #------------------------------------------------------------------------------
+# links, backlinks
+#------------------------------------------------------------------------------
+
+# returns the link without .md or path
+# ./Foo.md -> Foo
+# Foo.md -> Foo
+def get_links(fname):
+    global PATH_KB
+    links = []
+    fpath = os.path.join(PATH_KB, fname)
+    for line in open(fpath, 'r').readlines():
+        # do not parse links from backlinks
+        if line.startswith('<!-- backlinks_start -->'):
+            break
+
+        for link in re.findall(r'\[.*?\]\((.*?)\)', line):
+            if not link.endswith('.md'):
+                continue
+            if not os.path.exists(os.path.join(PATH_KB, link)):
+                continue                
+            link = link[0:-3]
+            if link.startswith('./'):
+                link = link[2:]
+            links.append(link)
+    return links
+
+def set_backlinks(fname, links):
+    global PATH_KB
+
+    if not fname.endswith('.md'):
+        fname += '.md'
+
+    fpath = os.path.join(PATH_KB, fname)
+    with open(fpath, 'r') as fp:
+        lines = fp.readlines()
+   
+    # find, remove old backlinks
+    indices = [i for (i,l) in enumerate(lines) if l.startswith('<!-- backlinks_start -->')]
+    if indices:
+        assert len(indices) == 1, f'{fpath} does not have exactly one start fence'
+        start = indices[0]
+
+        indices = [i for (i,l) in enumerate(lines) if l.startswith('<!-- backlinks_end -->')]
+        assert len(indices) == 1, breakpoint()
+        assert len(indices) == 1, f'{fpath} has backlinks start fence but not exactly one ending fence'
+        end = indices[0]
+
+        lines = lines[0:start] + lines[end+1:]
+
+    # remove empty lines
+    while lines[-1].isspace():
+        lines.pop()
+
+    if links:
+        # add new backlinks
+        lines.append('\n')
+        lines.append('\n')
+        lines.append('<!-- backlinks_start -->\n')
+        lines.append('### backlinks\n')
+        for link in sorted(links):
+            if link.endswith('.md'):
+                link = link[0:-3]
+            lines.append(f'[{link}](./{link}.md)\n')
+        lines.append('<!-- backlinks_end -->')
+
+    atime = os.path.getatime(fpath)
+    mtime = os.path.getmtime(fpath)
+    with open(fpath, 'w') as fp:
+        fp.write(''.join(lines))
+    os.utime(fpath, (atime, mtime))
+
+#------------------------------------------------------------------------------
 # file parsing stuff
 #------------------------------------------------------------------------------
 

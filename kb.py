@@ -2,8 +2,10 @@
 
 # CLI interface to kb (knowledge base)
 
+import re
 import time
 import json
+import pprint
 
 from kblib import *
 
@@ -203,7 +205,35 @@ if __name__ == '__main__':
                 open(fpath, 'a+').write(open(fpath_templ, 'r').read())
         print('opening %s' % fpath)
         #edit_file(fpath, 'gvim')
-        edit_file(fpath)
+        edit_file(fpath, 'typora')
+
+    elif cmd in ['backlink', 'backlinks']:
+        # keys are destination
+        # values are sets of departures
+        backlinks = {}
+
+        # compute backlinks
+        fnames = [x for x in os.listdir(PATH_KB) if x.endswith('.md')]
+        #fnames = ['ExclusiveSchoolClubs.md']
+        #fnames = ['ActiveOppositionRequired.md']
+        for fname in fnames:
+            links = get_links(fname)
+            if not links:
+                continue
+
+            print(fname)
+            for link in links:
+                print(f'-> {link}')
+                src = fname[0:-3] # strip ".md"
+                dst = link
+                if not dst in backlinks:
+                    backlinks[dst] = set()
+                backlinks[dst].add(src)
+        
+        pprint.pprint(backlinks)
+
+        for (dst, srcs) in backlinks.items():
+            set_backlinks(dst, srcs)
 
     elif cmd == 'test1':
         # show files without metadata
