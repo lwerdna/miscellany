@@ -79,17 +79,26 @@ def asm_line_transform(x):
     # otherwise
     return x
 
+flavor = 'nasm'
+flavor = 'gas'
+
 if __name__ == '__main__':
     fpath, symname = sys.argv[1:]
 
     bview = binaryninja.open_view(fpath)
     func = bview.get_functions_by_name(symname)[0]
 
-    print(f'global {func.name}')
+    if flavor == 'nasm':
+        print(f'global {func.name}')
+    elif flavor == 'gas':
+        print(f'.globl {func.name}')
     print('')
 
     #print('.code')
-    print('section .text')
+    if flavor == 'nasm':
+        print('section .code')
+    elif flavor == 'gas':
+        print('.code')
     print('')
 
     print(f'{func.name}:')
@@ -127,7 +136,11 @@ if __name__ == '__main__':
     data_addrs = get_references_to_data(func)
     if data_addrs:
         #print('.data')
-        print('section .data')
+        if flavor == 'nasm':
+            print('section .data')
+        elif flavor == 'gas':
+            print('.data')
+
         print('')
         for addr in data_addrs:
             dvar = bview.data_vars[addr]
