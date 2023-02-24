@@ -37,6 +37,7 @@ install:
 	if [ ! -f "${HOME}/bin/binja-cfg-mermaid" ]; then ln -s `pwd`/binja-cfg-mermaid.py ${HOME}/bin/binja-cfg-mermaid; fi;
 	if [ ! -f "${HOME}/bin/binja-cfg-dot" ]; then ln -s `pwd`/binja-cfg-dot.py ${HOME}/bin/binja-cfg-dot; fi;
 	if [ ! -f "${HOME}/bin/binja-rip" ]; then ln -s `pwd`/binja-rip.py ${HOME}/bin/binja-rip; fi;
+	if [ ! -f "${HOME}/bin/bencode2json" ]; then ln -s `pwd`/bencode2json.py ${HOME}/bin/bencode2json; fi;
 
 uninstall:
 	if [ -f "${HOME}/bin/diff-dir" ]; then rm ${HOME}/bin/diff-dir; fi;
@@ -77,4 +78,5 @@ uninstall:
 	if [ -f "${HOME}/bin/binja-cfg-mermaid" ]; then rm ${HOME}/bin/binja-cfg-mermaid; fi;
 	if [ -f "${HOME}/bin/binja-cfg-dot" ]; then rm ${HOME}/bin/binja-cfg-dot; fi;
 	if [ -f "${HOME}/bin/binja-rip" ]; then rm ${HOME}/bin/binja-rip; fi;
+	if [ -f "${HOME}/bin/bencode2json" ]; then rm ${HOME}/bin/bencode2json; fi;
 
