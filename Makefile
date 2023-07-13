@@ -32,7 +32,6 @@ install:
 	if [ ! -f "${HOME}/bin/makeurl" ]; then ln -s `pwd`/makeurl.py ${HOME}/bin/makeurl; fi;
 	if [ ! -f "${HOME}/bin/grepbin" ]; then ln -s `pwd`/grepbin.py ${HOME}/bin/grepbin; fi;
 	if [ ! -f "${HOME}/bin/binja-dis" ]; then ln -s `pwd`/binja-dis.py ${HOME}/bin/binja-dis; fi;
-	if [ ! -f "${HOME}/bin/binja-lift" ]; then ln -s `pwd`/binja-lift.py ${HOME}/bin/binja-lift; fi;
 	if [ ! -f "${HOME}/bin/binja-tlinfo" ]; then ln -s `pwd`/binja-tlinfo.py ${HOME}/bin/binja-tlinfo; fi;
 	if [ ! -f "${HOME}/bin/binja-cfg-mermaid" ]; then ln -s `pwd`/binja-cfg-mermaid.py ${HOME}/bin/binja-cfg-mermaid; fi;
 	if [ ! -f "${HOME}/bin/binja-cfg-dot" ]; then ln -s `pwd`/binja-cfg-dot.py ${HOME}/bin/binja-cfg-dot; fi;
@@ -74,7 +73,6 @@ uninstall:
 	if [ -f "${HOME}/bin/makeurl" ]; then rm ${HOME}/bin/makeurl; fi;
 	if [ -f "${HOME}/bin/grepbin" ]; then rm ${HOME}/bin/grepbin; fi;
 	if [ -f "${HOME}/bin/binja-dis" ]; then rm ${HOME}/bin/binja-dis; fi;
-	if [ -f "${HOME}/bin/binja-lift" ]; then rm ${HOME}/bin/binja-lift; fi;
 	if [ -f "${HOME}/bin/binja-tlinfo" ]; then rm ${HOME}/bin/binja-tlinfo; fi;
 	if [ -f "${HOME}/bin/binja-cfg-mermaid" ]; then rm ${HOME}/bin/binja-cfg-mermaid; fi;
 	if [ -f "${HOME}/bin/binja-cfg-dot" ]; then rm ${HOME}/bin/binja-cfg-dot; fi;
