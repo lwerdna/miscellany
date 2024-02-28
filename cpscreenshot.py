@@ -10,7 +10,10 @@ def get_mtime(fpath):
     struct_stat = os.stat(fpath)
     return time.localtime(struct_stat.st_mtime)
 
-fpaths = glob.glob(os.environ['HOME'] + "/Desktop/Screen Shot *.png")
+fpaths = []
+fpaths += glob.glob(os.environ['HOME'] + "/Desktop/Screen Shot *.png")
+fpaths += glob.glob(os.environ['HOME'] + "/Desktop/Screenshot *.png")
+
 fpaths = sorted(fpaths, key=get_mtime, reverse=True)
 
 if len(sys.argv) < 2:
