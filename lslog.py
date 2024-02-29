@@ -207,7 +207,7 @@ if __name__ == '__main__':
     database = defaultdict(lambda: [])
 
     # parse notes.md
-    fpath = os.path.join(os.environ['HOME'], 'fdumps', 'journals', 'notes.md')
+    fpath = os.path.join(os.environ['HOME'], 'fdumps', 'wiki', 'Commonplace.md')
     collect_notes(fpath, database)
 
     dpath = os.path.join(os.environ['HOME'], 'fdumps', 'heap')

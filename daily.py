@@ -4,7 +4,7 @@ import os
 import re
 import sys
 import time
-import urllib
+import urllib.parse
 import shutil
 
 from kblib import *
@@ -41,6 +41,7 @@ if __name__ == '__main__':
     for dpath in sorted(date_paths, reverse=True):
         fpath = os.path.join(dpath, 'daily.md')
         if os.path.exists(fpath):
+            print(f'{fpath} exists')
             recent.append(fpath)
         if len(recent) >= 4:
             break
