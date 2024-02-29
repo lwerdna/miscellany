@@ -39,6 +39,8 @@ install:
 	if [ ! -f "${HOME}/bin/bencode2json" ]; then ln -s `pwd`/bencode2json.py ${HOME}/bin/bencode2json; fi;
 	if [ ! -f "${HOME}/bin/ls2markdown" ]; then ln -s `pwd`/ls2markdown.py ${HOME}/bin/ls2markdown; fi;
 	if [ ! -f "${HOME}/bin/daily" ]; then ln -s `pwd`/daily.py ${HOME}/bin/daily; fi;
+	if [ ! -f "${HOME}/bin/comsplit" ]; then ln -s `pwd`/comsplit.py ${HOME}/bin/comsplit; fi;
+	if [ ! -f "${HOME}/bin/commerge" ]; then ln -s `pwd`/commerge.py ${HOME}/bin/commerge; fi;
 
 uninstall:
 	if [ -f "${HOME}/bin/diff-dir" ]; then rm ${HOME}/bin/diff-dir; fi;
@@ -81,4 +83,5 @@ uninstall:
 	if [ -f "${HOME}/bin/bencode2json" ]; then rm ${HOME}/bin/bencode2json; fi;
 	if [ -f "${HOME}/bin/ls2markdown" ]; then rm ${HOME}/bin/ls2markdown; fi;
 	if [ -f "${HOME}/bin/daily" ]; then rm ${HOME}/bin/daily; fi;
-
+	if [ -f "${HOME}/bin/comsplit" ]; then rm ${HOME}/bin/comsplit; fi;
+	if [ -f "${HOME}/bin/commerge" ]; then rm ${HOME}/bin/commerge; fi;
