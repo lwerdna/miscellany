@@ -26,7 +26,6 @@ install:
 	if [ ! -f "${HOME}/bin/kbfltk" ]; then ln -s `pwd`/kbfltk.py ${HOME}/bin/kbfltk; fi;
 	if [ ! -f "${HOME}/bin/pyputprints" ]; then ln -s `pwd`/pyputprints.py ${HOME}/bin/pyputprints; fi;
 	if [ ! -f "${HOME}/bin/openpickle" ]; then ln -s `pwd`/openpickle.py ${HOME}/bin/openpickle; fi;
-	if [ ! -f "${HOME}/bin/assetize" ]; then ln -s `pwd`/assetize.py ${HOME}/bin/assetize; fi;
 	if [ ! -f "${HOME}/bin/git-conflict-marker-split" ]; then ln -s `pwd`/git-conflict-marker-split.py ${HOME}/bin/git-conflict-marker-split; fi;
 	if [ ! -f "${HOME}/bin/lslog" ]; then ln -s `pwd`/lslog.py ${HOME}/bin/lslog; fi;
 	if [ ! -f "${HOME}/bin/makeurl" ]; then ln -s `pwd`/makeurl.py ${HOME}/bin/makeurl; fi;
@@ -70,7 +69,6 @@ uninstall:
 	if [ -f "${HOME}/bin/kbfltk" ]; then rm ${HOME}/bin/kbfltk; fi;
 	if [ -f "${HOME}/bin/pyputprints" ]; then rm ${HOME}/bin/pyputprints; fi;
 	if [ -f "${HOME}/bin/openpickle" ]; then rm ${HOME}/bin/openpickle; fi;
-	if [ -f "${HOME}/bin/assetize" ]; then rm ${HOME}/bin/assetize; fi;
 	if [ -f "${HOME}/bin/git-conflict-marker-split" ]; then rm ${HOME}/bin/git-conflict-marker-split; fi;
 	if [ -f "${HOME}/bin/lslog" ]; then rm ${HOME}/bin/lslog; fi;
 	if [ -f "${HOME}/bin/makeurl" ]; then rm ${HOME}/bin/makeurl; fi;

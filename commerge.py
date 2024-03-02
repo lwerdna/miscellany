@@ -4,7 +4,7 @@
 
 import os
 
-left = '/tmp/CommonplaceFragment.md'
+left = os.getenv("HOME") + '/fdumps/wiki/CommonplaceFragment.md'
 right = os.getenv("HOME") + '/fdumps/wiki/Commonplace.md'
 cmd = f'diffmerge {left} {right}'
 print(f'running: {cmd}')

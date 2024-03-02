@@ -7,14 +7,15 @@ import os
 import sys
 import time
 
-FPATH = os.getenv("HOME") + '/fdumps/wiki/Commonplace.md'
+FPATH_SRC = os.getenv("HOME") + '/fdumps/wiki/Commonplace.md'
+FPATH_DST = os.getenv("HOME") + '/fdumps/wiki/CommonplaceFragment.md'
 
 def iso8601_to_epoch(isoString: str):
 	time_struct = time.strptime(isoString, '%Y-%m-%d')
 	epoch = time.mktime(time_struct)
 	return epoch
 
-with open(FPATH, 'r') as fp:
+with open(FPATH_SRC, 'r') as fp:
     lines = fp.readlines()
 
 epoch_now = time.time()
@@ -28,7 +29,7 @@ if not sys.argv[1:] or sys.argv[1] == 'week':
     for i,line in enumerate(lines):
         if m := re.match(r'^# (\d\d\d\d-\d\d-\d\d).*$', line):
             epoch = iso8601_to_epoch(m.group(1))
-            print(f'Is {epoch} >= {epoch_ago} ? {epoch >= epoch_ago}')
+            #print(f'Is {epoch} >= {epoch_ago} ? {epoch >= epoch_ago}')
             if epoch >= epoch_ago:
                 cutoff = i
                 break
@@ -36,16 +37,15 @@ if not sys.argv[1:] or sys.argv[1] == 'week':
 if cutoff == None:
     print(f'ERROR: not found')
 else:
-    print(f'Found on line {cutoff}')
-    fpath = '/tmp/CommonplaceFragment.md'
-    print(fpath)
-    with open(fpath, 'w') as fp:
+    print(f'found on line {cutoff}')
+    with open(FPATH_DST, 'w') as fp:
         fp.write(f'---\n')
         fp.write(f'typora-copy-images-to: ./assets\n')
         fp.write(f'---\n')
         fp.write(f'\n')
         fp.write(''.join(lines[cutoff:]))
 
-    cmd = 'open -a typora %s' % fpath
+    cmd = f'open -a typora {FPATH_DST}'
     print(f'running: {cmd}')
     os.system(cmd)
+
