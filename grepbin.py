@@ -20,7 +20,11 @@ def find_all(buf, target):
 
 target = bytes([int(x,16) for x in sys.argv[2:]])
 
-print(f'searching {sys.argv[1]} for {target}')
+fpath = sys.argv[1]
+if not os.path.isfile(fpath):
+    print(f'skipping {fpath}')
+    sys.exit(0)
+print(f'searching {fpath} for {target}')
 with open(sys.argv[1], 'rb') as fp:
     guts = fp.read()
     for offset in find_all(guts, target):

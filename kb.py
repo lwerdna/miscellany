@@ -6,6 +6,7 @@ import re
 import time
 import json
 import pprint
+import platform
 
 from kblib import *
 
@@ -14,16 +15,22 @@ from kblib import *
 #------------------------------------------------------------------------------
 
 # central place to decide how to edit a file (vim, gvim, macvim, typora, etc.)
-def edit_file(fpath, method='macvim'):
-    if method == 'macvim':
-        os.system('open -a macvim %s' % fpath)
-    elif method == 'typora':
-        os.system('open -a typora %s' % fpath)
-    elif method == 'gvim':
+def edit_file(fpath, method='gvim'):
+    system = platform.system()
+
+    if method == 'gvim':
         os.system('gvim %s +' % fpath)
     elif method == 'vim':
         os.system('vim %s +' % fpath)
-
+    elif method == 'macvim' and system == 'Darwin':
+        os.system('open -a macvim %s' % fpath)
+    elif method == 'typora':
+        if system == 'Darwin':
+            os.system('open -a typora %s' % fpath)
+        elif system == 'Linux':
+            os.system(f'typora {fpath} &')
+    else:
+        raise Exception(f'Can\'t figure out how to edit file {fpath} with method {method}')
 
 #------------------------------------------------------------------------------
 # output stuff
