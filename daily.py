@@ -59,5 +59,7 @@ if __name__ == '__main__':
         print(f'today\'s daily exists')
     else:
         print(f'today\'s daily doesnt exist, copying {recent[0]} to {fpath}')
+        dir_part = os.path.split(fpath)[0]
+        os.makedirs(dir_part, exist_ok=True)
         shutil.copyfile(recent[0], fpath)
     os.system(f'open {fpath}')

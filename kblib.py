@@ -218,6 +218,7 @@ def set_backlinks(fname, links):
     # remove empty lines
     while lines[-1].isspace():
         lines.pop()
+    lines[-1] = lines[-1].rstrip()
 
     if links:
         # add new backlinks

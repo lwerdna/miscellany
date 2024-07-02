@@ -122,6 +122,9 @@ def collect_files(root, database):
 
     for dpath in get_date_paths(root):
         for fname in os.listdir(dpath):
+            if fname == 'daily.md':
+                continue
+
             fpath = os.path.join(dpath, fname)
 
             if os.path.isfile(fpath) and fname in blacklist_files:
@@ -212,6 +215,21 @@ if __name__ == '__main__':
 
     dpath = os.path.join(os.environ['HOME'], 'fdumps', 'heap')
     collect_files(dpath, database)
+
+    if sys.argv[1:]:
+        tag = sys.argv[1]
+        if tag.startswith('#'):
+            tag = tag[1:]
+            database2 = {}
+
+            for date in database:
+                for entry in database[date]:
+                    if tag in entry['tags']:
+                        if not date in database2:
+                            database2[date] = []
+                        database2[date].append(entry)
+
+            database = database2
 
     perform_ls(database)
 

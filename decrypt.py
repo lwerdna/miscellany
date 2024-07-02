@@ -97,7 +97,7 @@ def doFile(fpath, key, init):
 	# decode: bytes -> str
 	body = body.decode('utf-8')
 
-	print("propogating changes to %s" % fpath)
+	print("propagating changes to %s" % fpath)
 	fp = open(fpath, 'w')
 	fp.write(body)
 	fp.close()

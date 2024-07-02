@@ -6,7 +6,6 @@ import re
 import time
 import json
 import pprint
-import platform
 
 from kblib import *
 
@@ -15,22 +14,16 @@ from kblib import *
 #------------------------------------------------------------------------------
 
 # central place to decide how to edit a file (vim, gvim, macvim, typora, etc.)
-def edit_file(fpath, method='gvim'):
-    system = platform.system()
-
-    if method == 'gvim':
+def edit_file(fpath, method='macvim'):
+    if method == 'macvim':
+        os.system('open -a macvim %s' % fpath)
+    elif method == 'typora':
+        os.system('open -a typora %s' % fpath)
+    elif method == 'gvim':
         os.system('gvim %s +' % fpath)
     elif method == 'vim':
         os.system('vim %s +' % fpath)
-    elif method == 'macvim' and system == 'Darwin':
-        os.system('open -a macvim %s' % fpath)
-    elif method == 'typora':
-        if system == 'Darwin':
-            os.system('open -a typora %s' % fpath)
-        elif system == 'Linux':
-            os.system(f'typora {fpath} &')
-    else:
-        raise Exception(f'Can\'t figure out how to edit file {fpath} with method {method}')
+
 
 #------------------------------------------------------------------------------
 # output stuff
@@ -186,12 +179,13 @@ if __name__ == '__main__':
         print('deleting %s, backup copied to %s' % (src, dst))
         shutil.copyfile(src, dst)
         os.unlink(src)
+
     elif cmd in ['tags', 'tag', 'lstag', 'lstags', 'lst']:
-        perform_ls(1000000, sys.argv[2:])
+        perform_ls2(1000000, sys.argv[2:])
 
     # is it a tag? (probably will have to escape this on your shell, like: `kb \#book`)
     elif cmd.startswith('#'):
-        perform_ls(1000000, sys.argv[1:])
+        perform_ls2(1000000, [cmd])
 
     elif cmd == 'new':
         fname = gen_fname()
@@ -214,16 +208,19 @@ if __name__ == '__main__':
         #edit_file(fpath, 'gvim')
         edit_file(fpath, 'typora')
 
-    elif cmd in ['backlink', 'backlinks']:
+    elif cmd in ['backlink', 'backlinks', 'backrefs', 'backreferences']:
         # keys are destination
         # values are sets of departures
         backlinks = {}
 
         # compute backlinks
-        fnames = [x for x in os.listdir(PATH_KB) if x.endswith('.md')]
+        if sys.argv[2:]:
+            fnames = [sys.argv[2]]
+        else:
+            fnames = [x for x in os.listdir(PATH_KB) if x.endswith('.md')]
         #fnames = ['ExclusiveSchoolClubs.md']
         #fnames = ['ActiveOppositionRequired.md']
-        for fname in fnames:
+        for fname in sorted(fnames):
             links = get_links(fname)
             if not links:
                 continue
@@ -313,7 +310,7 @@ if __name__ == '__main__':
             print('opening', fname)
         else:
             print('creating', fname)
-            initialize_post(fname)
+            initialize_post(fname, cmd)
 
         edit_file(fname, 'typora')
 

@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 
+# Use this to read Transmission .resume files
+# on MacOS: ~/Library/Application Support/Transmission/Resume
+
 import os, sys
 import json
 

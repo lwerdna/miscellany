@@ -15,31 +15,23 @@ import sys
 
 for root, dirs, files in os.walk('.'):
     for fname in files:
-        #if not re.match(r'^Makefile.*$', fname): continue
-        #if not fname.endswith('.py'): continue
-        #if not fname.endswith('.md'): continue
-        #if not fname.endswith('.xml'): continue
+        # SETTING: what kind of file
         if not fname.endswith('.md'): continue
 
         #if (root != '.') and (root[0:7] != './arch/'):
         #    continue
 
         fpath = os.path.join(root, fname)
-        #print "root is: %s" % root
         print("opening %s" % fpath)
 
-        # text replace
-        if 0:
+        # SETTING: text or binary
+        if 1:
             fp = open(fpath, 'r+')
             stuff = fp.read()
 
-            #hits = re.findall(r'/attachments/', stuff)
-            #hits = re.findall(r'usr/bin/env python', stuff)
-            #hits = re.findall(r'\s-O3', stuff)
-            #before = r'<\?xml-stylesheet type="text/xsl" encoding="UTF-8" href="iform.xsl" version="1.0"\?>'
-            #after = '<!-- '+before+' -->'
-            before = 'position:absolute; '
-            after = ''
+            # SETTING: what to search/replace
+            before = r'\]\(\.\/.*?\.assets\/'
+            after = 'assets/'
 
             hits = re.findall(before, stuff)
             total = len(hits)
