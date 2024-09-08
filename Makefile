@@ -42,6 +42,7 @@ install:
 	if [ ! -f "${HOME}/bin/commerge" ]; then ln -s `pwd`/commerge.py ${HOME}/bin/commerge; fi;
 	if [ ! -f "${HOME}/bin/showargs" ]; then ln -s `pwd`/showargs.py ${HOME}/bin/showargs; fi;
 	if [ ! -f "${HOME}/bin/gen-guid" ]; then ln -s `pwd`/gen-guid.py ${HOME}/bin/gen-guid; fi;
+	if [ ! -f "${HOME}/bin/journal" ]; then ln -s `pwd`/journal.py ${HOME}/bin/journal; fi;
 
 uninstall:
 	if [ -f "${HOME}/bin/diff-dir" ]; then rm ${HOME}/bin/diff-dir; fi;
@@ -87,3 +88,4 @@ uninstall:
 	if [ -f "${HOME}/bin/commerge" ]; then rm ${HOME}/bin/commerge; fi;
 	if [ -f "${HOME}/bin/showargs" ]; then rm ${HOME}/bin/showargs; fi;
 	if [ -f "${HOME}/bin/gen-guid" ]; then rm ${HOME}/bin/gen-guid; fi;
+	if [ -f "${HOME}/bin/journal" ]; then rm ${HOME}/bin/journal; fi;
