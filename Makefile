@@ -43,6 +43,8 @@ install:
 	if [ ! -f "${HOME}/.local/bin/showargs" ]; then ln -s `pwd`/showargs.py ${HOME}/.local/bin/showargs; fi;
 	if [ ! -f "${HOME}/.local/bin/gen-guid" ]; then ln -s `pwd`/gen-guid.py ${HOME}/.local/bin/gen-guid; fi;
 	if [ ! -f "${HOME}/.local/bin/journal" ]; then ln -s `pwd`/journal.py ${HOME}/.local/bin/journal; fi;
+	if [ ! -f "${HOME}/.local/bin/set_time_exif" ]; then ln -s `pwd`/set_time_exif.py ${HOME}/.local/bin/set_time_exif; fi;
+	if [ ! -f "${HOME}/.local/bin/set_time_git" ]; then ln -s `pwd`/set_time_git.py ${HOME}/.local/bin/set_time_git; fi;
 
 uninstall:
 	if [ -f "${HOME}/.local/bin/diff-dir" ]; then rm ${HOME}/.local/bin/diff-dir; fi;
@@ -89,3 +91,5 @@ uninstall:
 	if [ -f "${HOME}/.local/bin/showargs" ]; then rm ${HOME}/.local/bin/showargs; fi;
 	if [ -f "${HOME}/.local/bin/gen-guid" ]; then rm ${HOME}/.local/bin/gen-guid; fi;
 	if [ -f "${HOME}/.local/bin/journal" ]; then rm ${HOME}/.local/bin/journal; fi;
+	if [ -f "${HOME}/.local/bin/set_time_exif" ]; then rm ${HOME}/.local/bin/set_time_exif; fi;
+	if [ -f "${HOME}/.local/bin/set_time_git" ]; then rm ${HOME}/.local/bin/set_time_git; fi;
