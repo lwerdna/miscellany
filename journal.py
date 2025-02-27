@@ -24,4 +24,4 @@ else:
     os.system('touch ' + found) 
 
 print(f'opening: {found}')
-os.system('open -a typora ' + found)
+os.system(f'open -a typora "{found}"')
