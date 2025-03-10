@@ -1,60 +1,93 @@
 #!/usr/bin/env python
 
-import socket
-import struct
-from dhcppython.packet import DHCPPacket
+# example invocation:
+#   sudo -E ./dhcpserver2.py eth0 192.168.1.55
 
-# Configuration
-SERVER_IP = '192.168.1.1'
-OFFERED_IP = '192.168.1.100'
-SUBNET_MASK = '255.255.255.0'
-ROUTER_IP = '192.168.1.1'
-DNS_SERVER_IP = '8.8.8.8'
-SERVER_PORT = 67
-CLIENT_PORT = 68
+# recall:
+#    DISCOVER ->
+# <- OFFER
+#    REQUEST  ->
+# <- ACK      ->
+import os
+import sys
 
-# Create UDP socket
-sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-sock.bind(('', SERVER_PORT))
+from scapy.all import *
+from scapy.layers.dhcp import DHCP, BOOTP
+from scapy.layers.inet import IP, UDP
+from scapy.layers.l2 import Ether
 
-print("DHCP server started. Listening...")
+def handle_packet(packet, iface, offer_ip):
+    #print(f'handle_packet({packet}, {iface})')
 
-while True:
-    try:
-        data, addr = sock.recvfrom(1024)
-        packet = DHCPPacket.from_bytes(data)
+    our_mac = get_if_hwaddr(iface)
+    src_mac = packet[Ether].src
+
+    server_ip = offer_ip[0:offer_ip.rfind('.')] + '.1'
+
+    if 0:
+        print(f'  server ip: {server_ip}')
+        print(f' server mac: {our_mac}')
+        print(f' client mac: {src_mac}')
+        print(f'offering ip: {offer_ip}')
+
+    if DHCP in packet and packet[DHCP].options[0][1] == 1: # DHCP Discover
+        xid = packet[BOOTP].xid
+
+        print(f'Received DHCP Discover from: {packet[Ether].src} with transaction id: {xid}')
+
+        if our_mac == src_mac:
+            print('WARNING! Received DHCP Discover from your own interface! Bailing!')
+            return
+
+        options = []
+        options.append(('message-type', 'offer'))
+        options.append(('server_id', server_ip))
+        options.append(('lease_time', 600))
+        options.append(('subnet_mask', '255.255.255.0'))
+        options.append(('router', server_ip))
+        options.append(('name_server', server_ip))
+        options.append('end')
+
+        # Craft DHCP Offer
+        dhcp_offer = Ether(src=our_mac, dst=src_mac)/ \
+                     IP(src=server_ip, dst=offer_ip)/ \
+                     UDP(sport=67, dport=68)/ \
+                     BOOTP(op=2, yiaddr=offer_ip, siaddr=server_ip, giaddr="0.0.0.0", chaddr=packet[BOOTP].chaddr, xid=xid)/ \
+                     DHCP(options=options)
         
-        breakpoint()
-        if packet.msg_type == DHCPPacket.DISCOVER:
-            print("Received DHCP Discover from", addr)
-            
-            offer_packet = DHCPPacket.create_offer(
-                xid=packet.xid,
-                mac=packet.chaddr,
-                ip=OFFERED_IP,
-                server_ip=SERVER_IP,
-                subnet_mask=SUBNET_MASK,
-                router=ROUTER_IP,
-                dns_server=DNS_SERVER_IP
-            )
-            sock.sendto(offer_packet.asbytes, (addr[0], CLIENT_PORT))
-            print("Sent DHCP Offer to", addr)
+        print(dhcp_offer)
+        sendp(dhcp_offer, iface=iface, verbose=False)
+        print("Sent DHCP Offer to: " + packet[Ether].src)
 
-        elif packet.msg_type == DHCPPacket.REQUEST:
-             print("Received DHCP Request from", addr)
+    elif DHCP in packet and packet[DHCP].options[0][1] == 3: # DHCP Request
+        xid = packet[BOOTP].xid
 
-             ack_packet = DHCPPacket.create_ack(
-                xid=packet.xid,
-                mac=packet.chaddr,
-                ip=OFFERED_IP,
-                server_ip=SERVER_IP,
-                subnet_mask=SUBNET_MASK,
-                router=ROUTER_IP,
-                dns_server=DNS_SERVER_IP
-            )
-             sock.sendto(ack_packet.asbytes, (addr[0], CLIENT_PORT))
-             print("Sent DHCP ACK to", addr)
+        print("Received DHCP Request from: " + packet[Ether].src)
 
-    except Exception as e:
-        print("Error:", e)
+        # Craft DHCP ACK
+        dhcp_ack = Ether(src=our_mac, dst=src_mac)/ \
+                   IP(src=server_ip, dst=server_ip)/ \
+                   UDP(sport=67, dport=68)/ \
+                   BOOTP(op=2, yiaddr=server_ip, siaddr=server_ip, giaddr="0.0.0.0", chaddr=packet[BOOTP].chaddr, xid=xid)/ \
+                   DHCP(options=[("message-type","ack"), ("server_id",server_ip), ("subnet_mask","255.255.255.0"), ("router",server_ip), 'end'])
+        
+        sendp(dhcp_ack, iface=iface, verbose=False)
+        print("Sent DHCP ACK to: " + packet[Ether].src)
+
+if __name__ == '__main__':
+    if len(sys.argv) < 3:
+        print('USAGE: {sys.argv[0]} <interface> <ip>')
+        print('WHERE:')
+        print('  <interface> is which interface to service')
+        print('         <ip> is what IP to offer')
+        sys.exit(-1)
+
+    ifname, offer_ip = sys.argv[1], sys.argv[2]
+
+    # Sniff DHCP packets
+    print(f'listening on interface: {ifname}')
+    filter = 'udp and (port 67 or port 68)'
+    sniff(  iface=ifname,
+            filter='udp and (port 67 or port 68)',
+            prn=lambda packet: handle_packet(packet, ifname, offer_ip)
+        )
