@@ -411,11 +411,10 @@ def initialize_post(fpath, title='Untitled'):
 
     with open(fpath, 'w') as fp:
         fp.write('---\n')
-        fp.write('TITLE: %s\n' % title)
-        fp.write('DATE_CREATED: %s\n' % now_str)
+        fp.write('title: %s\n' % title)
+        fp.write('date_created: %s\n' % now_str)
         #fp.write('DATE_MODIFIED: %s\n' % now_str)
-        fp.write('TAGS: []\n')
-        fp.write('UNIQUE_ID: %s\n' % gen_unique_id())
+        fp.write('tags:\n')
         fp.write('typora-copy-images-to: ./assets\n')
         fp.write('---\n')
         fp.write('\n')

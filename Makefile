@@ -46,6 +46,7 @@ install:
 	if [ ! -f "${HOME}/.local/bin/set_time_exif" ]; then ln -s `pwd`/set_time_exif.py ${HOME}/.local/bin/set_time_exif; fi;
 	if [ ! -f "${HOME}/.local/bin/set_time_git" ]; then ln -s `pwd`/set_time_git.py ${HOME}/.local/bin/set_time_git; fi;
 	if [ ! -f "${HOME}/.local/bin/dhcpserver" ]; then ln -s `pwd`/dhcpserver.py ${HOME}/.local/bin/dhcpserver; fi;
+	if [ ! -f "${HOME}/.local/bin/torrent_dump" ]; then ln -s `pwd`/torrent_dump.py ${HOME}/.local/bin/torrent_dump; fi;
 
 uninstall:
 	if [ -f "${HOME}/.local/bin/diff-dir" ]; then rm ${HOME}/.local/bin/diff-dir; fi;
@@ -95,3 +96,4 @@ uninstall:
 	if [ -f "${HOME}/.local/bin/set_time_exif" ]; then rm ${HOME}/.local/bin/set_time_exif; fi;
 	if [ -f "${HOME}/.local/bin/set_time_git" ]; then rm ${HOME}/.local/bin/set_time_git; fi;
 	if [ -f "${HOME}/.local/bin/dhcpserver" ]; then rm ${HOME}/.local/bin/dhcpserver; fi;
+	if [ -f "${HOME}/.local/bin/torrent_dump" ]; then rm ${HOME}/.local/bin/torrent_dump; fi;

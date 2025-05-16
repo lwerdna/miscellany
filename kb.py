@@ -187,10 +187,11 @@ if __name__ == '__main__':
     elif cmd.startswith('#'):
         perform_ls2(1000000, [cmd])
 
-    elif cmd == 'new':
-        fname = gen_fname()
+    elif cmd == 'post':
+        fname = 'post' + gen_fname(n_chars=4)
         fpath = os.path.join(PATH_KB, fname)
         initialize_post(fpath)
+        print(f'editing {fpath}')
         edit_file(fpath, 'typora')
 
     elif cmd in ['journal', 'j']:
