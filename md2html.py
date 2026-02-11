@@ -114,8 +114,12 @@ if __name__ == '__main__':
     with open(infile) as fp:
         md = fp.read()
 
+    fobj = sys.stdout
+    if sys.argv[2:]:
+        fobj = open(sys.argv[2], 'w')
+
     # kinda equivalent to command line invocation: markdown2 -x fenced-code-blocks -x highlightjs-lang -x tables ./index.md
-    sys.stdout.write(header)
+    fobj.write(header)
 
     # can contain instances of extensions or strings of extension names
     #extension_specs = ['customblocks', 'tables', 'toc', 'fenced_code']
@@ -127,6 +131,6 @@ if __name__ == '__main__':
     }
     html = markdown.markdown(md, extensions=extension_specs, extension_configs=extension_configs)
     html = post_process(html)
-    sys.stdout.write(html)
-    sys.stdout.write(footer)
+    fobj.write(html)
+    fobj.write(footer)
 

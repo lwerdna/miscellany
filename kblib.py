@@ -88,7 +88,7 @@ def read_front_matter(fpath):
     with open(fpath) as fp:
         lines = [l.strip() for l in fp.readlines()]
 
-    if not (lines[0]=='---' or lines[0]=='<!--'):
+    if not lines or not (lines[0]=='---' or lines[0]=='<!--'):
         return result
 
     for i in range(1, len(lines)):
@@ -96,7 +96,7 @@ def read_front_matter(fpath):
         if line=='---' or line=='-->':
             break
         m = re.match('^\s*([\w-]+)\s*:\s*(.*)$', line)
-        assert m, 'malformed front matter: %s' % line
+        assert m, f'malformed front matter in {fpath}: {line}'
         (var_name, var_val) = m.group(1,2)
         if var_val.startswith('['):
             var_val = parse_list(var_val)
@@ -325,6 +325,7 @@ def db_load():
 # save kb database to disk
 def db_save(database):
     global PATH_KBDATA
+    print(f'writing {PATH_KBDATA}')
     with open(PATH_KBDATA, 'w') as fp:
         fp.write(json.dumps(database, indent=4))
 
