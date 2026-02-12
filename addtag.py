@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# rename file "foo.txt" to "XXXX foo.txt" where XXXX is the first 4 chars of SHA1
+# rename file "foo.txt" to "foo.txt XXX" where XXXX is a unique tag for that file
 
 import os
 import re
@@ -19,7 +19,7 @@ def calc_sha1(fpath):
 
     return context.digest()
 
-def calc_prefix(fpath):
+def calc_tag(fpath):
     digest = calc_sha1(fpath)
     temp = base64.b64encode(digest[0:3]) # 24 bits -> 6 bits per b64 char -> 4 chars
     temp = temp.decode('utf-8') # binary -> string
@@ -27,8 +27,8 @@ def calc_prefix(fpath):
     return temp
 
 if __name__ == '__main__':
-    if not sys.argv[1]:
-        print(f'supply file name to add to file store')
+    if not sys.argv[1:]:
+        print(f'supply file name to add a tag to')
         sys.exit(-1)
 
     fpath = sys.argv[1]
@@ -37,6 +37,8 @@ if __name__ == '__main__':
         print(f'given path {fpath} does not exist')
 
     fname = os.path.basename(fpath)
-    fname2 = calc_prefix(fpath) + ' ' + fname
+    name, ext = os.path.splitext(fname)
+    fname2 = name + ' ' + calc_tag(fpath) + ext
     fpath2 = os.path.join(os.path.dirname(fpath), fname2)
     print(f'{fpath} -> {fpath2}')
+    #os.rename(fpath, fpath2)
