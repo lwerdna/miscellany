@@ -49,6 +49,12 @@ install:
 	if [ ! -f "${HOME}/.local/bin/torrent_dump" ]; then ln -s `pwd`/torrent_dump.py ${HOME}/.local/bin/torrent_dump; fi;
 	if [ ! -f "${HOME}/.local/bin/addtag" ]; then ln -s `pwd`/addtag.py ${HOME}/.local/bin/addtag; fi;
 	if [ ! -f "${HOME}/.local/bin/localsend_process" ]; then ln -s `pwd`/localsend_process.py ${HOME}/.local/bin/localsend_process; fi;
+	if [ ! -f "${HOME}/.local/bin/cphtml" ]; then ln -s `pwd`/cphtml.py ${HOME}/.local/bin/cphtml; fi;
+	if [ ! -f "${HOME}/.local/bin/cpjson" ]; then ln -s `pwd`/cpjson.py ${HOME}/.local/bin/cpjson; fi;
+	if [ ! -f "${HOME}/.local/bin/cplist" ]; then ln -s `pwd`/cplist.py ${HOME}/.local/bin/cplist; fi;
+	if [ ! -f "${HOME}/.local/bin/cpmove" ]; then ln -s `pwd`/cpmove.py ${HOME}/.local/bin/cpmove; fi;
+	if [ ! -f "${HOME}/.local/bin/cpslice" ]; then ln -s `pwd`/cpslice.py ${HOME}/.local/bin/cpslice; fi;
+	if [ ! -f "${HOME}/.local/bin/cptags" ]; then ln -s `pwd`/cptags.py ${HOME}/.local/bin/cptags; fi;
 
 uninstall:
 	if [ -f "${HOME}/.local/bin/diff-dir" ]; then rm ${HOME}/.local/bin/diff-dir; fi;
@@ -101,3 +107,9 @@ uninstall:
 	if [ -f "${HOME}/.local/bin/torrent_dump" ]; then rm ${HOME}/.local/bin/torrent_dump; fi;
 	if [ -f "${HOME}/.local/bin/addtag" ]; then rm ${HOME}/.local/bin/addtag; fi;
 	if [ -f "${HOME}/.local/bin/localsend_process" ]; then rm ${HOME}/.local/bin/localsend_process; fi;
+	if [ -f "${HOME}/.local/bin/cphtml" ]; then rm ${HOME}/.local/bin/cphtml; fi;
+	if [ -f "${HOME}/.local/bin/cpjson" ]; then rm ${HOME}/.local/bin/cpjson; fi;
+	if [ -f "${HOME}/.local/bin/cplist" ]; then rm ${HOME}/.local/bin/cplist; fi;
+	if [ -f "${HOME}/.local/bin/cpmove" ]; then rm ${HOME}/.local/bin/cpmove; fi;
+	if [ -f "${HOME}/.local/bin/cpslice" ]; then rm ${HOME}/.local/bin/cpslice; fi;
+	if [ -f "${HOME}/.local/bin/cptags" ]; then rm ${HOME}/.local/bin/cptags; fi;
