@@ -28,7 +28,19 @@ def untag_line(line):
 def is_line_tagged(line):
     return bool(re.search(r' #\w+$', line))
 
-def get_entries(fpath='Commonplace.md'):
+def get_filename():
+    if temp := next((x for x in sys.argv[1:] if os.path.exists(x) and os.path.isfile(x)), None):
+        fpath = temp
+    else:
+        fpath = next((x for x in ['Commonplace.md', 'log.md', 'journal.md'] if os.path.exists(x)), None)
+
+    return fpath
+
+def get_entries():
+    fpath = get_filename()
+    if not fpath:
+        raise Exception('cannot find a commonplace notes file')
+
     entries = []
 
     STATE = 'OUTSIDE'
@@ -85,7 +97,7 @@ def get_entries(fpath='Commonplace.md'):
     # filter out pornography
     kill_list = []
     for i, entry in enumerate(entries):
-        if set(entry['tags'].lower()).intersection({'porn', 'pr0n', 'pron'}):
+        if set(t.lower() for t in entry['tags']).intersection({'porn', 'pr0n', 'pron'}):
             kill_list.append(i)
     for i in reversed(kill_list):
         del(entries[i])

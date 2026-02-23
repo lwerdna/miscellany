@@ -7,8 +7,6 @@ sys.path.append(this_dir)
 import cplib
 
 if __name__ == '__main__':
-    infile = 'Commonplace.md'
-
     tag = None
     for arg in sys.argv[1:]:
         if arg.startswith('#'):
@@ -19,7 +17,7 @@ if __name__ == '__main__':
     if tag != None:
         print(f'filtering tag: {tag}')
 
-    entries = cplib.get_entries(infile)
+    entries = cplib.get_entries()
     for i, entry in enumerate(entries):
         if tag != None and not cplib.tag_included(tag, entry['tags']):
             continue
