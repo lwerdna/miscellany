@@ -56,6 +56,7 @@ install:
 	if [ ! -f "${HOME}/.local/bin/cpslice" ]; then ln -s `pwd`/cpslice.py ${HOME}/.local/bin/cpslice; fi;
 	if [ ! -f "${HOME}/.local/bin/cptags" ]; then ln -s `pwd`/cptags.py ${HOME}/.local/bin/cptags; fi;
 	if [ ! -f "${HOME}/.local/bin/cpdate" ]; then ln -s `pwd`/cpdate.py ${HOME}/.local/bin/cpdate; fi;
+	if [ ! -f "${HOME}/.local/bin/notes" ]; then ln -s `pwd`/notes.py ${HOME}/.local/bin/notes; fi;
 
 uninstall:
 	if [ -f "${HOME}/.local/bin/diff-dir" ]; then rm ${HOME}/.local/bin/diff-dir; fi;
@@ -115,3 +116,4 @@ uninstall:
 	if [ -f "${HOME}/.local/bin/cpslice" ]; then rm ${HOME}/.local/bin/cpslice; fi;
 	if [ -f "${HOME}/.local/bin/cptags" ]; then rm ${HOME}/.local/bin/cptags; fi;
 	if [ -f "${HOME}/.local/bin/cpdate" ]; then rm ${HOME}/.local/bin/cpdate; fi;
+	if [ -f "${HOME}/.local/bin/notes" ]; then rm ${HOME}/.local/bin/notes; fi;

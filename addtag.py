@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# rename file "foo.txt" to "foo.txt XXX" where XXXX is a unique tag for that file
+# rename file "foo.txt" to "foo.txt XXXX" where XXXX is a unique tag for that file
 
 import os
 import re
@@ -19,11 +19,12 @@ def calc_sha1(fpath):
 
     return context.digest()
 
+# 24-bit tag has 2**24 or ~16 million possibilities
 def calc_tag(fpath):
     digest = calc_sha1(fpath)
     temp = base64.b64encode(digest[0:3]) # 24 bits -> 6 bits per b64 char -> 4 chars
     temp = temp.decode('utf-8') # binary -> string
-    temp = temp.replace('+', 'X').replace('/', 'X') # don't like these chars
+    temp = temp.replace('+', 'X').replace('/', 'X') # don't like these chars, reduce space
     return temp
 
 if __name__ == '__main__':
