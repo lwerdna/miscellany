@@ -16,13 +16,24 @@ def append(fpath, line):
         f.write('\n' + line + '\n')
 
 if __name__ == '__main__':
-    fpath = os.path.join(os.environ['HOME'], 'fdumps', 'notes', 'notes.txt')
+    valid_commands = ['open', 'edit', 'vim', 'gvim', 'date', 'mark', 'slug']
 
-    cmd = 'open'
-    if sys.argv[1:]:
+    fpath = os.path.join(os.environ['HOME'], 'fdumps', 'wiki', 'Commonplace.md')
+
+    cmd = None
+
+    # no arguments? default to opening the notes file
+    if not sys.argv[1:]:
+        cmd = 'open'
+    # but any number of arguments mean the first word is the command
+    elif len(sys.argv) == 2 and sys.argv[1] in valid_commands:
         cmd = sys.argv[1]
 
-    if cmd.lower() in ['open', 'edit', 'vim', 'gvim']:
+    if cmd is None:
+        line = ' '.join(sys.argv[1:])
+        append(fpath, line)
+
+    elif cmd.lower() in ['open', 'edit', 'vim', 'gvim']:
         if platform.system() == 'Darwin':
             line = f'open -a macvim {fpath}'
         else:
@@ -31,8 +42,13 @@ if __name__ == '__main__':
         os.system(line)
 
     elif cmd == 'date':
-        date = date.today().strftime("%Y-%m-%d_%a")
-        line = '<!--' + date + '-->'
+        if 0:
+            date_str = date.today().strftime("%Y-%m-%d_%a")
+            line = '<!--' + date + '-->'
+        else:
+            date_str = date.today().strftime("%Y-%m-%d %A") # xxxx-xx-xx Monday
+            line = f'# {date_str}'
+
         append(fpath, line)
 
     elif cmd in ['mark', 'slug']:
